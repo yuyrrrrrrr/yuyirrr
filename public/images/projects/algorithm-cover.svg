@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760">
+  <defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#b45309"/><stop offset="1" stop-color="#f4c05f"/></linearGradient><pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse"><path d="M48 0H0V48" fill="none" stroke="#fff" stroke-opacity=".12"/></pattern><style>@media (prefers-reduced-motion: reduce){*{animation:none!important}}</style></defs>
+  <rect width="1200" height="760" rx="36" fill="url(#bg)"/><rect width="1200" height="760" rx="36" fill="url(#grid)"/>
+  <text x="72" y="96" fill="#fff" opacity=".72" font-size="20" font-family="Arial, sans-serif" letter-spacing="5">04 / SAMPLE PROJECT</text>
+  <text x="72" y="225" fill="#fff" font-size="64" font-weight="700" font-family="Arial, sans-serif">ROUTE / EXPLAIN</text>
+  <text x="72" y="280" fill="#fff" opacity=".83" font-size="24" font-family="Arial, sans-serif">多目标寻路 · 偏好权重 · 路径解释</text>
+  <path d="M72 335H520" stroke="#fff" stroke-width="2" opacity=".4"/>
+  <g opacity=".9"><circle cx="895" cy="300" r="15" fill="#fff"><animate attributeName="r" values="10;18;10" dur="2.8s" repeatCount="indefinite"/></circle><path d="M235 510 C440 390 680 545 945 276" fill="none" stroke="#fff" stroke-width="5" stroke-dasharray="15 16"><animate attributeName="stroke-dashoffset" values="0;-62" dur="2.6s" repeatCount="indefinite"/></path></g>
+  <g transform="translate(72 600)"><circle cx="8" cy="8" r="8" fill="#fff"/><text x="28" y="15" fill="#fff" opacity=".82" font-size="18" font-family="Arial, sans-serif">STATIC FIRST · CONTENT DRIVEN</text></g>
+</svg>

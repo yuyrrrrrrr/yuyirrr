@@ -1,0 +1,116 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import BlogCard from '../components/BlogCard.astro';
+import ContactGrid from '../components/ContactGrid.astro';
+import { site, techGroups } from '../config/site';
+import { sortPosts, sortProjects } from '../lib/content';
+
+const projects = sortProjects((await getCollection('projects')).filter((project) => !project.data.draft));
+const featured = projects.filter((project) => project.data.featured).slice(0, 3);
+const posts = sortPosts((await getCollection('blog')).filter((post) => !post.data.draft)).slice(0, 3);
+---
+
+<BaseLayout>
+  <section class="hero">
+    <div class="container hero__grid">
+      <div>
+        <span class="eyebrow">{site.eyebrow}</span>
+        <h1>把复杂问题，<br />做成清晰产品。</h1>
+        <p class="hero__lead">{site.description}</p>
+        <div class="hero__meta">
+          <span class="pill"><span class="status-dot" aria-hidden="true"></span>{site.availability}</span>
+          <span class="pill">{site.location}</span>
+          {site.isSample && <span class="pill sample-badge">{site.sampleNotice}</span>}
+        </div>
+        <div class="button-row">
+          <a class="button button--accent" href="/projects/">查看项目 <span aria-hidden="true">→</span></a>
+          <a class="button button--ghost" href="/resume/">在线简历</a>
+          <a class="button button--ghost" href={`mailto:${site.email}`}>联系我</a>
+        </div>
+      </div>
+      <section class="hero__aside" aria-label="个人概览">
+        <span class="hero__monogram" aria-hidden="true">{site.shortName}</span>
+        <dl>
+          <div>
+            <dt>身份</dt>
+            <dd>{site.role}</dd>
+          </div>
+          <div>
+            <dt>关注</dt>
+            <dd>Web 全栈 · 数据可视化 · AI 应用</dd>
+          </div>
+          <div>
+            <dt>现在</dt>
+            <dd>{site.availability}</dd>
+          </div>
+        </dl>
+      </section>
+    </div>
+  </section>
+
+  <section class="section section--soft" aria-labelledby="skills-title">
+    <div class="container">
+      <SectionHeading
+        eyebrow="TOOLKIT"
+        title="不仅能写出功能，也关心系统为什么这样设计。"
+        description="按项目需要选择工具，重视清晰的边界、可验证的结果和后续维护成本。"
+      />
+      <div class="tech-grid" id="skills-title">
+        {techGroups.map((group, index) => (
+          <article class="tech-group card">
+            <span class="tech-group__number">0{index + 1} / STACK</span>
+            <h3>{group.label}</h3>
+            <ul>{group.items.map((item) => <li class="pill">{item}</li>)}</ul>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="featured-title">
+    <div class="container">
+      <SectionHeading
+        eyebrow="SELECTED WORK"
+        title="用项目回答：我能解决什么问题。"
+        description="重点展示问题背景、真实职责、关键取舍和量化结果，而不只是技术名词列表。"
+        actionHref="/projects/"
+        actionLabel="查看全部项目"
+      />
+      <div class="project-showcase" id="featured-title">
+        {featured.map((project, index) => (
+          <ProjectCard project={project} feature={index === 0} index={index + 1} />
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--soft" aria-labelledby="notes-title">
+    <div class="container">
+      <SectionHeading
+        eyebrow="NOTES"
+        title="把踩过的坑，写成下一次能复用的方法。"
+        description="记录技术取舍、项目复盘和学习路径，保持表达具体、可执行。"
+        actionHref="/blog/"
+        actionLabel="阅读全部笔记"
+      />
+      <div class="blog-grid" id="notes-title">
+        {posts.map((post) => <BlogCard post={post} />)}
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <SectionHeading
+        eyebrow="CONTACT"
+        title="30 秒了解之后，欢迎聊得更具体。"
+        description="如果你在寻找全栈开发实习生、项目合作者，或只是想交流一个技术问题，都可以直接联系我。"
+      />
+      <ContactGrid />
+    </div>
+  </section>
+</BaseLayout>
+

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900">
+  <rect width="1440" height="900" rx="34" fill="#f5f6f2"/><rect x="40" y="40" width="1360" height="820" rx="28" fill="#1d2026"/>
+  <rect x="72" y="78" width="250" height="12" rx="6" fill="#fff" opacity=".16"/><circle cx="1330" cy="86" r="10" fill="#f4c05f"/>
+  <g transform="translate(72 132)"><rect width="1296" height="688" rx="24" fill="url(#screenBg)"/><defs><linearGradient id="screenBg" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#b45309" stop-opacity=".95"/><stop offset="1" stop-color="#f4c05f" stop-opacity=".78"/></linearGradient></defs><path d="M220 540 L430 290 L660 480 L900 210 L1120 390" fill="none" stroke="#fff" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="430" cy="290" r="18" fill="#fff"/><circle cx="900" cy="210" r="18" fill="#fff"/></g>
+  <text x="104" y="835" fill="#fff" opacity=".55" font-size="18" font-family="Arial, sans-serif">SAMPLE SCREEN · REPLACE WITH REAL SCREENSHOT</text>
+</svg>

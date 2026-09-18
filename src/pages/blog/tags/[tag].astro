@@ -1,0 +1,34 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import BlogCard from '../../../components/BlogCard.astro';
+import { blogTags, BLOG_TAG_KEYS, type BlogTag } from '../../../config/taxonomy';
+import { sortPosts } from '../../../lib/content';
+
+export async function getStaticPaths() {
+  return BLOG_TAG_KEYS.map((tag) => ({ params: { tag }, props: { tag } }));
+}
+interface Props { tag: BlogTag }
+const { tag } = Astro.props;
+const posts = sortPosts(
+  (await getCollection('blog')).filter((post) => !post.data.draft && post.data.tags.includes(tag))
+);
+---
+
+<BaseLayout title={`${blogTags[tag].label}笔记`} description={blogTags[tag].description}>
+  <section class="tag-header">
+    <div class="container">
+      <ol class="breadcrumb"><li><a href="/">首页</a></li><li><a href="/blog/">博客/笔记</a></li><li>{blogTags[tag].label}</li></ol>
+      <span class="eyebrow">TAG / {tag.toUpperCase()}</span>
+      <h1>{blogTags[tag].label}</h1>
+      <p>{blogTags[tag].description}</p>
+    </div>
+  </section>
+  <section class="section section--compact">
+    <div class="container">
+      <div class="blog-list">
+        {posts.length > 0 ? posts.map((post) => <BlogCard post={post} />) : <div class="empty-results card" data-visible="true"><h3>这个标签还没有文章</h3><p>可以先返回博客首页查看全部笔记。</p></div>}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

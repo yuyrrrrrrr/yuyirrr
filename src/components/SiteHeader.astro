@@ -1,0 +1,35 @@
+---
+const currentPath = Astro.url.pathname.replace(/\/+$/, '') || '/';
+const navItems = [
+  { href: '/', label: '首页', match: '/' },
+  { href: '/projects/', label: '项目', match: '/projects' },
+  { href: '/resume/', label: '简历', match: '/resume' },
+  { href: '/blog/', label: '博客/笔记', match: '/blog' },
+  { href: '/about/', label: '关于', match: '/about' }
+];
+const isActive = (match: string) => match === '/' ? currentPath === '/' : currentPath.startsWith(match);
+---
+
+<header class="site-header">
+  <div class="container site-header__bar">
+    <a class="brand" href="/" aria-label="返回首页">
+      <span class="brand__mark">YU</span>
+      <span>个人作品集</span>
+    </a>
+    <nav class="nav" aria-label="主导航">
+      {navItems.map((item) => (
+        <a href={item.href} aria-current={isActive(item.match) ? 'page' : undefined}>{item.label}</a>
+      ))}
+    </nav>
+    <a class="button button--primary header-cta" href="/about/#contact">联系我</a>
+    <details class="mobile-nav">
+      <summary>导航菜单</summary>
+      <nav aria-label="移动端导航">
+        {navItems.map((item) => (
+          <a href={item.href} aria-current={isActive(item.match) ? 'page' : undefined}>{item.label}</a>
+        ))}
+        <a href="/about/#contact">联系我</a>
+      </nav>
+    </details>
+  </div>
+</header>

@@ -1,0 +1,68 @@
+---
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { blogTags } from '../../config/taxonomy';
+import { formatDate, readingTime, sortPosts } from '../../lib/content';
+import { site } from '../../config/site';
+
+type Post = CollectionEntry<'blog'>;
+export async function getStaticPaths() {
+  const posts = (await getCollection('blog')).filter((post) => !post.data.draft);
+  return posts.map((post) => ({ params: { slug: post.id }, props: { post } }));
+}
+
+interface Props { post: Post }
+const { post } = Astro.props;
+const { Content, headings } = await render(post);
+const toc = headings.filter((heading) => heading.depth === 2 || heading.depth === 3);
+const posts = sortPosts((await getCollection('blog')).filter((item) => !item.data.draft));
+const currentIndex = posts.findIndex((item) => item.id === post.id);
+const previous = currentIndex > 0 ? posts[currentIndex - 1] : undefined;
+const next = currentIndex < posts.length - 1 ? posts[currentIndex + 1] : undefined;
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  headline: post.data.title,
+  description: post.data.description,
+  datePublished: post.data.publishedAt.toISOString(),
+  dateModified: (post.data.updatedAt ?? post.data.publishedAt).toISOString(),
+  author: { '@type': 'Person', name: site.name, url: site.siteUrl },
+  mainEntityOfPage: new URL(`/blog/${post.id}/`, site.siteUrl).toString(),
+  keywords: post.data.tags.map((tag) => blogTags[tag].label).join(', ')
+};
+---
+
+<BaseLayout title={post.data.title} description={post.data.description} image={post.data.cover} type="article" jsonLd={jsonLd}>
+  <article>
+    <header class="article-header narrow">
+      <ol class="breadcrumb"><li><a href="/">首页</a></li><li><a href="/blog/">博客/笔记</a></li><li>{post.data.title}</li></ol>
+      <div class="blog-meta">
+        <time datetime={post.data.publishedAt.toISOString()}>{formatDate(post.data.publishedAt)}</time>
+        <span>{readingTime(post.body)} 分钟阅读</span>
+      </div>
+      <h1>{post.data.title}</h1>
+      <p class="article-header__description">{post.data.description}</p>
+      <div class="tag-list">
+        {post.data.tags.map((tag) => <a class="pill" href={`/blog/tags/${tag}/`}>{blogTags[tag].label}</a>)}
+      </div>
+    </header>
+
+    <div class="container article-layout">
+      {toc.length > 0 && (
+        <nav class="article-toc" aria-labelledby="article-toc-title">
+          <strong id="article-toc-title">本文目录</strong>
+          {toc.map((heading) => <a class:list={[`depth-${heading.depth}`]} href={`#${heading.slug}`}>{heading.text}</a>)}
+        </nav>
+      )}
+      <div class="prose">
+        <Content />
+      </div>
+    </div>
+
+    <nav class="container project-pagination" aria-label="文章翻页">
+      {previous && <a class="pagination-link" href={`/blog/${previous.id}/`}><span>上一篇</span><strong>← {previous.data.title}</strong></a>}
+      {next && <a class="pagination-link pagination-link--next" href={`/blog/${next.id}/`}><span>下一篇</span><strong>{next.data.title} →</strong></a>}
+    </nav>
+  </article>
+</BaseLayout>
+

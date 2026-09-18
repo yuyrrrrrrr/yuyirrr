@@ -1,0 +1,39 @@
+---
+import type { ProjectEntry } from '../lib/content';
+import { projectCategories } from '../config/taxonomy';
+import CategoryBadge from './CategoryBadge.astro';
+interface Props {
+  project: ProjectEntry;
+  feature?: boolean;
+  index?: number;
+}
+const { project, feature = false, index } = Astro.props;
+const category = projectCategories[project.data.category];
+const href = `/projects/${project.id}/`;
+---
+
+<article
+  class:list={['project-card', 'card', { 'project-card--feature': feature }]}
+  style={`--category-color:${category.color};--category-soft:${category.softColor}`}
+  data-project-card
+  data-category={project.data.category}
+>
+  <a class="project-card__media" href={href} aria-label={`查看项目：${project.data.title}`}>
+    <img src={project.data.cover} alt="" width="1200" height="760" loading="lazy" decoding="async" />
+    {index !== undefined && <span class="project-card__index">{String(index).padStart(2, '0')} / CASE</span>}
+  </a>
+  <div class="project-card__body">
+    <div class="project-card__top">
+      <CategoryBadge category={project.data.category} />
+      {project.data.isSample && <span class="pill sample-badge">示例</span>}
+    </div>
+    <h3><a href={href}>{project.data.title}</a></h3>
+    <p>{project.data.summary}</p>
+    <div class="project-card__footer">
+      <ul class="tech-list" aria-label="技术栈">
+        {project.data.tech.slice(0, 4).map((item) => <li>{item}</li>)}
+      </ul>
+      <a class="text-link" href={href} aria-label={`继续阅读 ${project.data.title}`}>详情 →</a>
+    </div>
+  </div>
+</article>

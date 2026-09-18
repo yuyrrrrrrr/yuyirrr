@@ -1,0 +1,36 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BlogCard from '../../components/BlogCard.astro';
+import { blogTags, BLOG_TAG_KEYS } from '../../config/taxonomy';
+import { sortPosts } from '../../lib/content';
+
+const posts = sortPosts((await getCollection('blog')).filter((post) => !post.data.draft));
+---
+
+<BaseLayout
+  title="博客与笔记"
+  description="记录 Web 工程、静态站点、AI 与 RAG 项目中的技术取舍和复盘。"
+>
+  <section class="page-hero blog-hero">
+    <div class="container">
+      <span class="eyebrow">NOTES & ARTICLES</span>
+      <h1>把学习过程，写成可复用的答案。</h1>
+      <p>这里记录项目中的问题、决策、失败和验证方法。内容以项目实践为主，不追求工具资讯式更新。</p>
+      <div class="tag-list" style="margin-top:1.3rem">
+        {BLOG_TAG_KEYS.map((tag) => (
+          <a class="pill" href={`/blog/tags/${tag}/`}>{blogTags[tag].label}</a>
+        ))}
+        <a class="rss-link" href="/rss.xml">RSS 订阅 ↗</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--compact" aria-label="文章列表">
+    <div class="container">
+      <div class="blog-list">
+        {posts.map((post) => <BlogCard post={post} />)}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

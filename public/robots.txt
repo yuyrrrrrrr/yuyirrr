@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /resume/print/
+
+Sitemap: https://yuyirrr.com/sitemap-index.xml

@@ -1,0 +1,85 @@
+---
+import { resume } from '../config/resume';
+interface Props { print?: boolean }
+const { print = false } = Astro.props;
+---
+
+<article class="resume-paper" aria-label="在线简历">
+  <header class="resume-header">
+    <div>
+      <h1>{resume.name}</h1>
+      <p>{resume.headline}</p>
+      <div class="resume-contact">
+        <span>{resume.contact.location}</span>
+        <a href={`mailto:${resume.contact.email}`}>{resume.contact.email}</a>
+        <a href={resume.contact.github}>GitHub</a>
+        <span>{resume.contact.website}</span>
+      </div>
+    </div>
+    {resume.isSample && <span class="resume-sample">示例简历 · 待替换</span>}
+  </header>
+
+  <section class="resume-section">
+    <h2>个人概述</h2>
+    <div><p>{resume.summary}</p></div>
+  </section>
+
+  <section class="resume-section">
+    <h2>教育背景</h2>
+    <div>
+      {resume.education.map((item) => (
+        <div class="resume-entry">
+          <div class="resume-entry__head"><h3>{item.school}</h3><time>{item.period}</time></div>
+          <p>{item.degree}</p>
+          <ul>{item.details.map((detail) => <li>{detail}</li>)}</ul>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="resume-section">
+    <h2>经历</h2>
+    <div>
+      {resume.experience.map((item) => (
+        <div class="resume-entry">
+          <div class="resume-entry__head"><h3>{item.organization} · {item.role}</h3><time>{item.period}</time></div>
+          <ul>{item.details.map((detail) => <li>{detail}</li>)}</ul>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="resume-section">
+    <h2>代表项目</h2>
+    <div>
+      {resume.selectedProjects.map((project) => (
+        <div class="resume-entry">
+          <div class="resume-entry__head"><h3>{project.name}</h3></div>
+          <p>{project.description}</p>
+          <p><strong>技术：</strong>{project.tech}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="resume-section">
+    <h2>技能</h2>
+    <div class="resume-skills">
+      {resume.skillGroups.map((group) => (
+        <p><strong>{group.label}</strong>{group.items.join(' · ')}</p>
+      ))}
+    </div>
+  </section>
+
+  <section class="resume-section">
+    <h2>奖项</h2>
+    <ul>{resume.awards.map((award) => <li>{award}</li>)}</ul>
+  </section>
+
+  {!print && (
+    <footer class="resume-section">
+      <h2>说明</h2>
+      <p>页面与 PDF 使用同一份结构化数据生成。替换示例资料后，重新构建即可同步更新。</p>
+    </footer>
+  )}
+</article>

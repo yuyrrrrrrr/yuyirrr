@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900">
+  <rect width="1440" height="900" rx="34" fill="#f5f6f2"/><rect x="40" y="40" width="1360" height="820" rx="28" fill="#1d2026"/>
+  <rect x="72" y="78" width="250" height="12" rx="6" fill="#fff" opacity=".16"/><circle cx="1330" cy="86" r="10" fill="#80d5c8"/>
+  <g transform="translate(72 132)"><rect width="1296" height="688" rx="24" fill="url(#screenBg)"/><defs><linearGradient id="screenBg" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#0f766e" stop-opacity=".95"/><stop offset="1" stop-color="#80d5c8" stop-opacity=".78"/></linearGradient></defs><rect x="210" y="190" width="480" height="310" rx="24" fill="#fff" opacity=".96"/><rect x="730" y="190" width="430" height="145" rx="24" fill="#fff" opacity=".25"/><rect x="730" y="365" width="430" height="135" rx="24" fill="#fff" opacity=".25"/><rect x="250" y="235" width="210" height="26" rx="13" fill="#0f766e" opacity=".78"/><rect x="250" y="290" width="350" height="14" rx="7" fill="#0f766e" opacity=".18"/><rect x="250" y="325" width="290" height="14" rx="7" fill="#0f766e" opacity=".18"/></g>
+  <text x="104" y="835" fill="#fff" opacity=".55" font-size="18" font-family="Arial, sans-serif">SAMPLE SCREEN · REPLACE WITH REAL SCREENSHOT</text>
+</svg>

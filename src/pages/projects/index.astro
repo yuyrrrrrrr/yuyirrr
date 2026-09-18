@@ -1,0 +1,98 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import { projectCategories, PROJECT_CATEGORY_KEYS } from '../../config/taxonomy';
+import { sortProjects } from '../../lib/content';
+
+const projects = sortProjects((await getCollection('projects')).filter((project) => !project.data.draft));
+const categories = PROJECT_CATEGORY_KEYS.map((key) => ({ key, ...projectCategories[key] }));
+---
+
+<BaseLayout
+  title="项目"
+  description="按前端、后端、全栈、算法和 AI 分类浏览项目，查看问题背景、架构、难点、结果与复盘。"
+>
+  <section class="page-hero">
+    <div class="container">
+      <span class="eyebrow">PROJECT ARCHIVE</span>
+      <h1>做过的项目，要能解释为什么。</h1>
+      <p>每个案例都从问题出发，记录我的角色、关键工程取舍、可量化结果和下一次会怎样做得更好。</p>
+    </div>
+  </section>
+
+  <section class="section section--compact" aria-labelledby="project-list-title">
+    <div class="container">
+      <h2 id="project-list-title" class="sr-only">项目列表</h2>
+      <div class="filter-panel">
+        <div class="filter-chips" role="group" aria-label="按项目主分类筛选">
+          <button type="button" class="filter-chip" data-project-filter="all" aria-pressed="true">全部</button>
+          {categories.map((category) => (
+            <button
+              type="button"
+              class="filter-chip"
+              data-project-filter={category.key}
+              aria-pressed="false"
+            >{category.label}</button>
+          ))}
+        </div>
+        <span class="filter-count" data-filter-count aria-live="polite">共 {projects.length} 个项目</span>
+      </div>
+      <noscript><p class="filter-note">分类筛选需要 JavaScript；当前仍展示全部项目。</p></noscript>
+
+      <div class="project-list-grid" data-project-grid>
+        {projects.map((project, index) => <ProjectCard project={project} index={index + 1} />)}
+      </div>
+      <div class="empty-results card" data-empty-results>
+        <h3>这个分类暂时还没有项目</h3>
+        <p>可以先查看全部项目，或稍后回来。</p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  const chips = Array.from(document.querySelectorAll<HTMLElement>('[data-project-filter]'));
+  const cards = Array.from(document.querySelectorAll<HTMLElement>('[data-project-card]'));
+  const count = document.querySelector<HTMLElement>('[data-filter-count]');
+  const empty = document.querySelector<HTMLElement>('[data-empty-results]');
+  const validCategories = new Set(['all', ...chips.map((chip) => chip.dataset.projectFilter ?? '')]);
+
+  const applyFilter = (category: string, updateHistory = true) => {
+    const nextCategory = validCategories.has(category) ? category : 'all';
+    let visible = 0;
+
+    cards.forEach((card) => {
+      const show = nextCategory === 'all' || card.dataset.category === nextCategory;
+      card.hidden = !show;
+      if (show) visible += 1;
+    });
+
+    chips.forEach((chip) => {
+      chip.setAttribute('aria-pressed', String(chip.dataset.projectFilter === nextCategory));
+    });
+
+    if (count) count.textContent = nextCategory === 'all' ? `共 ${visible} 个项目` : `筛选结果 ${visible} 个项目`;
+    if (empty) empty.dataset.visible = String(visible === 0);
+
+    if (updateHistory) {
+      const url = new URL(window.location.href);
+      if (nextCategory === 'all') url.searchParams.delete('category');
+      else url.searchParams.set('category', nextCategory);
+      history.replaceState({}, '', `${url.pathname}${url.search}${url.hash}`);
+    }
+  };
+
+  chips.forEach((chip) => {
+    chip.addEventListener('click', (event) => {
+      event.preventDefault();
+      applyFilter(chip.dataset.projectFilter ?? 'all');
+    });
+  });
+
+  applyFilter(new URLSearchParams(window.location.search).get('category') ?? 'all', false);
+</script>
+
+
+
+

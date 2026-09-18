@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760">
+  <defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#6941c6"/><stop offset="1" stop-color="#c9b2ff"/></linearGradient><pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse"><path d="M48 0H0V48" fill="none" stroke="#fff" stroke-opacity=".12"/></pattern><style>@media (prefers-reduced-motion: reduce){*{animation:none!important}}</style></defs>
+  <rect width="1200" height="760" rx="36" fill="url(#bg)"/><rect width="1200" height="760" rx="36" fill="url(#grid)"/>
+  <text x="72" y="96" fill="#fff" opacity=".72" font-size="20" font-family="Arial, sans-serif" letter-spacing="5">03 / SAMPLE PROJECT</text>
+  <text x="72" y="225" fill="#fff" font-size="64" font-weight="700" font-family="Arial, sans-serif">CAMPUS / MARKET</text>
+  <text x="72" y="280" fill="#fff" opacity=".83" font-size="24" font-family="Arial, sans-serif">发布 · 检索 · 沟通 · 交付</text>
+  <path d="M72 335H520" stroke="#fff" stroke-width="2" opacity=".4"/>
+  <g opacity=".9"><g transform="translate(820 130)"><rect width="250" height="150" rx="22" fill="#fff" opacity=".16"/><rect y="24" width="155" height="14" rx="7" fill="#fff" opacity=".9"/><rect y="58" width="200" height="9" rx="4.5" fill="#fff" opacity=".55"/><rect y="82" width="178" height="9" rx="4.5" fill="#fff" opacity=".4"/><circle cx="36" cy="125" r="16" fill="#fff" opacity=".85"/></g></g>
+  <g transform="translate(72 600)"><circle cx="8" cy="8" r="8" fill="#fff"/><text x="28" y="15" fill="#fff" opacity=".82" font-size="18" font-family="Arial, sans-serif">STATIC FIRST · CONTENT DRIVEN</text></g>
+</svg>

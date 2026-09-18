@@ -1,0 +1,36 @@
+{
+  "name": "yuyirrr-portfolio",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "check": "astro check",
+    "build:site": "astro build",
+    "pdf": "node scripts/generate-resume-pdf.mjs",
+    "build": "npm run check && npm run build:site && npm run pdf",
+    "preview": "astro preview",
+    "test:e2e": "playwright test",
+    "verify": "npm run build && npm run test:e2e",
+    "assets": "node scripts/generate-art.mjs"
+  },
+  "dependencies": {
+    "@astrojs/mdx": "4.3.3",
+    "@astrojs/rss": "4.0.12",
+    "@astrojs/sitemap": "3.6.0",
+    "astro": "5.13.7",
+    "sharp": "0.34.3"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.4",
+    "@axe-core/playwright": "4.10.2",
+    "@playwright/test": "1.55.0",
+    "@types/node": "20.17.30",
+    "playwright": "1.55.0",
+    "typescript": "5.9.2"
+  },
+  "overrides": {
+    "@astrojs/language-server": "2.15.0",
+    "playwright-core": "1.55.0"
+  }
+}

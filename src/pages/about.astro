@@ -1,0 +1,106 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+import ContactGrid from '../components/ContactGrid.astro';
+import { site, techGroups } from '../config/site';
+import { resume } from '../config/resume';
+---
+
+<BaseLayout
+  title="关于"
+  description={`${site.name}的个人简介、教育背景、技能、经历、奖项和联系方式。`}
+>
+  <section class="page-hero">
+    <div class="container">
+      <span class="eyebrow">ABOUT ME</span>
+      <h1>保持好奇，把每一件作品做得更清楚一点。</h1>
+      <p>{site.longBio}</p>
+    </div>
+  </section>
+
+  <section class="section section--compact">
+    <div class="container about-intro">
+      <div class="prose">
+        <h2>个人简介</h2>
+        <p>{site.description}</p>
+        <p>{resume.summary}</p>
+        <div class="notice"><strong>{site.sampleNotice}</strong><span>修改 src/config/site.ts 与 resume.ts 后重新部署即可。</span></div>
+      </div>
+      <section class="about-intro__card card" aria-labelledby="about-summary-title">
+        <h2 id="about-summary-title" class="sr-only">快速信息</h2>
+        <dl>
+          <div><dt>当前身份</dt><dd>{site.role}</dd></div>
+          <div><dt>所在城市</dt><dd>{site.location}</dd></div>
+          <div><dt>求职状态</dt><dd>{site.availability}</dd></div>
+          <div><dt>主要方向</dt><dd>Web 全栈 / AI 应用 / 数据可视化</dd></div>
+        </dl>
+      </section>
+    </div>
+  </section>
+
+  <section class="section section--soft" aria-labelledby="education-title">
+    <div class="container">
+      <SectionHeading eyebrow="EDUCATION" title="教育背景" />
+      <div class="timeline" id="education-title">
+        {resume.education.map((item) => (
+          <article class="timeline-item card">
+            <span class="timeline-period">{item.period}</span>
+            <div>
+              <h3>{item.school}</h3>
+              <p>{item.degree}</p>
+              <ul>{item.details.map((detail) => <li>{detail}</li>)}</ul>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="skills-title">
+    <div class="container">
+      <SectionHeading eyebrow="SKILLS" title="技能不是名词列表，而是完成项目的工具箱。" />
+      <div class="tech-grid" id="skills-title">
+        {techGroups.map((group, index) => (
+          <article class="tech-group card">
+            <span class="tech-group__number">0{index + 1} / SKILLS</span>
+            <h3>{group.label}</h3>
+            <ul>{group.items.map((item) => <li class="pill">{item}</li>)}</ul>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--soft" aria-labelledby="experience-title">
+    <div class="container">
+      <SectionHeading eyebrow="EXPERIENCE" title="经历与职责" />
+      <div class="timeline" id="experience-title">
+        {resume.experience.map((item) => (
+          <article class="timeline-item card">
+            <span class="timeline-period">{item.period}</span>
+            <div>
+              <h3>{item.organization}</h3>
+              <p>{item.role}</p>
+              <ul>{item.details.map((detail) => <li>{detail}</li>)}</ul>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="awards-title">
+    <div class="container narrow">
+      <SectionHeading eyebrow="AWARDS" title="奖项与认可" />
+      <ul class="check-list" id="awards-title">{resume.awards.map((award) => <li>{award}</li>)}</ul>
+    </div>
+  </section>
+
+  <section class="section section--soft" aria-labelledby="contact-title">
+    <div class="container">
+      <SectionHeading eyebrow="CONTACT" title="联系方式" description="邮件最适合完整介绍项目；GitHub 可以看到持续更新；简历可直接下载 PDF。" />
+      <ContactGrid />
+    </div>
+  </section>
+</BaseLayout>
+

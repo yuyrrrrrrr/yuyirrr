@@ -1,0 +1,21 @@
+---
+import '../../styles/global.css';
+import ResumeContent from '../../components/ResumeContent.astro';
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>简历打印版</title>
+  </head>
+  <body>
+    <main class="resume-shell">
+      <div class="container narrow">
+        <ResumeContent print />
+      </div>
+    </main>
+  </body>
+</html>

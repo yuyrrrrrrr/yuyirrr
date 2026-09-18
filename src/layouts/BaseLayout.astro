@@ -1,0 +1,76 @@
+---
+import '../styles/global.css';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import { site } from '../config/site';
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+  type?: 'website' | 'article';
+  noindex?: boolean;
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+}
+
+const {
+  title = site.seo.defaultTitle,
+  description = site.seo.defaultDescription,
+  image = site.seo.ogImage,
+  type = 'website',
+  noindex = false,
+  jsonLd
+} = Astro.props;
+
+const pageTitle = title.includes(site.name) ? title : site.seo.titleTemplate.replace('%s', title);
+const canonical = new URL(Astro.url.pathname, site.siteUrl).toString();
+const imageUrl = new URL(image, site.siteUrl).toString();
+const personJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: site.name,
+  url: site.siteUrl,
+  email: site.email,
+  sameAs: [site.github],
+  description: site.description,
+  jobTitle: site.role
+};
+const structuredData = jsonLd ? [personJsonLd, ...(Array.isArray(jsonLd) ? jsonLd : [jsonLd])] : personJsonLd;
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="theme-color" content="#f4f3ef" />
+    <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate" type="application/rss+xml" title={`${site.name} · 技术笔记`} href="/rss.xml" />
+    <meta property="og:type" content={type} />
+    <meta property="og:locale" content="zh_CN" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={imageUrl} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={imageUrl} />
+    <title>{pageTitle}</title>
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">跳到主要内容</a>
+    <SiteHeader />
+    <main id="main-content">
+      <slot />
+    </main>
+    <SiteFooter />
+  </body>
+</html>
+

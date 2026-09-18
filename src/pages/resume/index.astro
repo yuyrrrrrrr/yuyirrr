@@ -1,0 +1,26 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ResumeContent from '../../components/ResumeContent.astro';
+---
+
+<BaseLayout
+  title="在线简历"
+  description="在线查看教育背景、项目经历、技能和奖项，并下载与页面内容同步生成的 PDF 简历。"
+>
+  <section class="page-hero">
+    <div class="container">
+      <span class="eyebrow">RESUME</span>
+      <h1>一页了解经历，一页看到能力。</h1>
+      <p>在线版适合快速浏览与搜索，PDF 适合投递和离线查看；两者由同一份数据生成。</p>
+      <div class="resume-actions">
+        <a class="button button--accent" href="/resume.pdf" download>下载 PDF 简历 ↓</a>
+        <a class="button button--ghost" href="/projects/">查看项目案例</a>
+      </div>
+    </div>
+  </section>
+  <section class="section section--compact resume-shell">
+    <div class="container narrow">
+      <ResumeContent />
+    </div>
+  </section>
+</BaseLayout>

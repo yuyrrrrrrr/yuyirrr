@@ -1,0 +1,84 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.19.5
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Build static site and PDF
+        env:
+          ASTRO_TELEMETRY_DISABLED: '1'
+        run: npm run build
+
+      - name: Upload site artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: yuyirrr-dist
+          path: dist
+          retention-days: 7
+
+  deploy:
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Download site artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: yuyirrr-dist
+          path: dist
+
+      - name: Configure SSH
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_PORT: ${{ secrets.DEPLOY_PORT }}
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+        run: |
+          test -n "$DEPLOY_HOST" || (echo "DEPLOY_HOST secret is required" && exit 1)
+          test -n "$DEPLOY_SSH_KEY" || (echo "DEPLOY_SSH_KEY secret is required" && exit 1)
+          mkdir -p ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/yuyirrr_deploy
+          chmod 600 ~/.ssh/yuyirrr_deploy
+          ssh-keyscan -p "${DEPLOY_PORT:-22}" "$DEPLOY_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Publish release
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_PORT: ${{ secrets.DEPLOY_PORT }}
+        run: |
+          test -n "$DEPLOY_USER" || (echo "DEPLOY_USER secret is required" && exit 1)
+          PORT="${DEPLOY_PORT:-22}"
+          TARGET="$DEPLOY_USER@$DEPLOY_HOST"
+          RELEASE="/var/www/yuyirrr/releases/$GITHUB_SHA"
+          SSH_OPTS="-i $HOME/.ssh/yuyirrr_deploy -p $PORT -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes"
+          ssh $SSH_OPTS "$TARGET" "mkdir -p '$RELEASE'"
+          rsync -az --delete -e "ssh $SSH_OPTS" dist/ "$TARGET:$RELEASE/"
+          ssh $SSH_OPTS "$TARGET" "cd /var/www/yuyirrr && ln -s 'releases/$GITHUB_SHA' '.current-$GITHUB_SHA' && mv -Tf '.current-$GITHUB_SHA' current && find releases -mindepth 1 -maxdepth 1 -type d -printf '%T@ %p\n' | sort -rn | tail -n +6 | cut -d' ' -f2- | xargs -r rm -rf"

@@ -1,0 +1,6 @@
+---
+interface Props { label: string; sample?: boolean }
+const { label, sample = false } = Astro.props;
+---
+
+<span class:list={['pill', { 'sample-badge': sample }]}>{label}</span>

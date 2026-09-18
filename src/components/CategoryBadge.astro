@@ -1,0 +1,8 @@
+---
+import { projectCategories, type ProjectCategory } from '../config/taxonomy';
+interface Props { category: ProjectCategory }
+const { category } = Astro.props;
+const item = projectCategories[category];
+---
+
+<span class="category-badge" style={`--category-color:${item.color}`}>{item.label}</span>

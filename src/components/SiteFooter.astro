@@ -1,0 +1,33 @@
+---
+import { site } from '../config/site';
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="site-footer__grid">
+      <div>
+        <span class="eyebrow">LET'S BUILD</span>
+        <h2>有项目、实习或合作机会，欢迎直接联系。</h2>
+        <p>{site.availability}</p>
+      </div>
+      <div class="footer-links">
+        <strong>站内</strong>
+        <a href="/projects/">项目</a>
+        <a href="/resume/">在线简历</a>
+        <a href="/blog/">博客/笔记</a>
+        <a href="/about/">关于</a>
+      </div>
+      <div class="footer-links">
+        <strong>联系</strong>
+        <a href={`mailto:${site.email}`}>邮箱</a>
+        <a href={site.github} target="_blank" rel="noreferrer">GitHub ↗</a>
+        <a href="/rss.xml">RSS</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© {year} {site.name} · 示例内容待替换</span>
+      <span>Astro · Static First · Built with care</span>
+    </div>
+  </div>
+</footer>

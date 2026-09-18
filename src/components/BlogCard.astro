@@ -1,0 +1,19 @@
+---
+import type { BlogEntry } from '../lib/content';
+import { blogTags } from '../config/taxonomy';
+import { formatDate } from '../lib/content';
+interface Props { post: BlogEntry }
+const { post } = Astro.props;
+const href = `/blog/${post.id}/`;
+---
+
+<article class="blog-card card">
+  <div class="blog-card__meta">
+    <time datetime={post.data.publishedAt.toISOString()}>{formatDate(post.data.publishedAt)}</time>
+    <span>{blogTags[post.data.tags[0]].label}</span>
+  </div>
+  <h2><a href={href}>{post.data.title}</a></h2>
+  <p>{post.data.description}</p>
+  <a class="text-link" href={href}>阅读笔记 →</a>
+</article>
+
