@@ -36,6 +36,11 @@ jobs:
           ASTRO_TELEMETRY_DISABLED: '1'
         run: npm run build
 
+      - name: Run end-to-end tests
+        env:
+          ASTRO_TELEMETRY_DISABLED: '1'
+        run: npm run test:e2e
+
       - name: Upload site artifact
         uses: actions/upload-artifact@v4
         with:
@@ -82,3 +87,4 @@ jobs:
           ssh $SSH_OPTS "$TARGET" "mkdir -p '$RELEASE'"
           rsync -az --delete -e "ssh $SSH_OPTS" dist/ "$TARGET:$RELEASE/"
           ssh $SSH_OPTS "$TARGET" "cd /var/www/yuyirrr && ln -s 'releases/$GITHUB_SHA' '.current-$GITHUB_SHA' && mv -Tf '.current-$GITHUB_SHA' current && find releases -mindepth 1 -maxdepth 1 -type d -printf '%T@ %p\n' | sort -rn | tail -n +6 | cut -d' ' -f2- | xargs -r rm -rf"
+
