@@ -86,5 +86,7 @@ jobs:
           SSH_OPTS="-i $HOME/.ssh/yuyirrr_deploy -p $PORT -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes"
           ssh $SSH_OPTS "$TARGET" "mkdir -p '$RELEASE'"
           rsync -az --delete -e "ssh $SSH_OPTS" dist/ "$TARGET:$RELEASE/"
+          ssh $SSH_OPTS "$TARGET" "chmod -R u=rwX,g=rX,o=rX '$RELEASE'"
           ssh $SSH_OPTS "$TARGET" "cd /var/www/yuyirrr && ln -s 'releases/$GITHUB_SHA' '.current-$GITHUB_SHA' && mv -Tf '.current-$GITHUB_SHA' current && find releases -mindepth 1 -maxdepth 1 -type d -printf '%T@ %p\n' | sort -rn | tail -n +6 | cut -d' ' -f2- | xargs -r rm -rf"
+
 
