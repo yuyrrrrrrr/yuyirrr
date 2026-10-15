@@ -51,7 +51,7 @@ test('项目详情包含规定的案例结构', async ({ page }) => {
   }
 });
 
-test('简历 PDF、博客与 RSS 可访问', async ({ page, request }) => {
+test('简历 PDF 与博客可访问，RSS 已移除', async ({ page, request }) => {
   const response = await request.get('/resume.pdf');
   expect(response.ok()).toBeTruthy();
   expect(response.headers()['content-type']).toContain('application/pdf');
@@ -62,8 +62,7 @@ test('简历 PDF、博客与 RSS 可访问', async ({ page, request }) => {
   await expect(page.getByRole('heading', { level: 1 })).toContainText('静态优先');
 
   const rss = await request.get('/rss.xml');
-  expect(rss.ok()).toBeTruthy();
-  expect(await rss.text()).toContain('<rss');
+  expect(rss.status()).toBe(404);
 });
 
 test('关键页面在移动端、平板和桌面视口无横向溢出', async ({ page }) => {

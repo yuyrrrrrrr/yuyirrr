@@ -1,20 +1,22 @@
 export const resume = {
   isSample: true,
-  name: '你的名字',
-  headline: '计算机专业学生 · 全栈 / AI 方向',
+  name: '倪博文',
+  headline: '数据科学与大数据技术本科 · 全栈 / AI 方向',
   contact: {
-    email: 'hello@example.com',
+    email: 'bowenni940@gmail.com',
+    emailAlt: '19144718828@163.com',
     github: 'https://github.com/yuyrrrrrrr',
     location: '中国 · 可远程',
+    age: 22,
     website: 'https://yuyirrr.com'
   },
   summary:
-    '计算机专业本科在读，具备从需求拆解、原型设计到前后端实现的基础工程能力。参与过 Web 全栈、算法优化与 RAG 应用项目，习惯用可量化指标验证结果，持续通过写作和复盘沉淀方法。',
+    '数据科学与大数据技术专业本科毕业，具备从需求拆解、原型设计到前后端实现的工程能力。参与过 Web 全栈、算法优化与 RAG 应用项目，习惯用可量化指标验证结果，持续通过写作和复盘沉淀方法，正在寻找全职与项目合作机会。',
   education: [
     {
-      school: '示例大学',
-      degree: '计算机科学与技术 · 本科',
-      period: '2023.09 - 2027.06',
+      school: '本科',
+      degree: '数据科学与大数据技术',
+      period: '2026 年毕业',
       details: ['GPA：3.8 / 4.0（示例）', '主修课程：数据结构、操作系统、数据库、机器学习']
     }
   ],

@@ -1,24 +1,27 @@
 export const site = {
-  name: '你的名字',
-  shortName: 'YU',
-  role: '计算机专业学生 · 全栈 / AI 方向',
+  name: '倪博文',
+  shortName: 'NBW',
+  age: 22,
+  role: '数据科学与大数据技术本科 · 全栈 / AI 方向',
   eyebrow: 'PORTFOLIO · 2026',
   description:
-    '关注真实问题、清晰工程和可持续迭代的学生开发者，正在寻找软件开发实习与校招机会。',
+    '数据科学与大数据技术专业毕业，关注真实问题、清晰工程和可持续迭代，正在学习与求职中，寻找软件开发的全职与项目合作机会。',
   longBio:
-    '我用代码把模糊问题变成可用的产品。目前主要关注 Web 全栈、数据可视化和大模型应用，喜欢从用户场景出发做减法，再用可靠工程把它实现出来。',
+    '我用代码把模糊问题变成可用的产品。毕业后主要关注 Web 全栈、数据可视化和大模型应用，一边系统补齐短板，一边寻找能一起把事情做成的团队。',
   location: '中国 · 可远程',
-  availability: '开放 2027 届实习 / 校招机会',
-  email: 'hello@example.com',
+  availability: '2026 届毕业 · 正在学习与求职，开放全职 / 项目合作机会',
+  email: 'bowenni940@gmail.com',
+  emailAlt: '19144718828@163.com',
   github: 'https://github.com/yuyrrrrrrr',
   siteUrl: 'https://yuyirrr.com',
+  icp: '浙ICP备2026076409号',
   isSample: true,
-  sampleNotice: '当前为示例内容 · 待替换为真实资料',
+  sampleNotice: '项目与经历为示例 · 待替换',
   seo: {
-    defaultTitle: '你的名字｜全栈与 AI 方向作品集',
-    titleTemplate: '%s｜你的名字',
+    defaultTitle: '倪博文｜数据科学与大数据技术作品集',
+    titleTemplate: '%s｜倪博文',
     defaultDescription:
-      '计算机专业学生个人作品集，展示全栈开发、算法与 AI 项目、技术笔记和在线简历。',
+      '倪博文的个人作品集，数据科学与大数据技术专业，展示全栈开发、算法与 AI 项目、技术笔记和在线简历，正在寻找全职与项目合作机会。',
     ogImage: '/og-default.png'
   }
 } as const;

@@ -8,7 +8,7 @@ const year = new Date().getFullYear();
     <div class="site-footer__grid">
       <div>
         <span class="eyebrow">LET'S BUILD</span>
-        <h2>有项目、实习或合作机会，欢迎直接联系。</h2>
+        <h2>有全职岗位或合作机会，欢迎直接联系。</h2>
         <p>{site.availability}</p>
       </div>
       <div class="footer-links">
@@ -20,13 +20,13 @@ const year = new Date().getFullYear();
       </div>
       <div class="footer-links">
         <strong>联系</strong>
-        <a href={`mailto:${site.email}`}>邮箱</a>
+        <a href={`mailto:${site.email}`}>Gmail</a>
+        <a href={`mailto:${site.emailAlt}`}>163 邮箱</a>
         <a href={site.github} target="_blank" rel="noreferrer">GitHub ↗</a>
-        <a href="/rss.xml">RSS</a>
       </div>
     </div>
     <div class="footer-bottom">
-      <span>© {year} {site.name} · 示例内容待替换</span>
+      <span>© {year} {site.name} · 个人作品集 · <a href="https://beian.miit.gov.cn/" target="_blank" rel="noreferrer">{site.icp}</a></span>
       <span>Astro · Static First · Built with care</span>
     </div>
   </div>

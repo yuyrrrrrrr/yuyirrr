@@ -31,15 +31,16 @@ const posts = sortPosts((await getCollection('blog')).filter((post) => !post.dat
           <a class="button button--ghost" href={`mailto:${site.email}`}>联系我</a>
         </div>
       </div>
-      <section class="hero__aside" aria-label="个人概览">
-        <span class="hero__monogram" aria-hidden="true">{site.shortName}</span>
+      <section class="hero__aside" aria-label="当前状态">
+        <span class="hero__status"><span class="status-dot" aria-hidden="true"></span>开放全职 / 项目合作</span>
+        <p class="hero__aside-title">正在寻找一份能把想法真正落地的工作。</p>
         <dl>
           <div>
             <dt>身份</dt>
             <dd>{site.role}</dd>
           </div>
           <div>
-            <dt>关注</dt>
+            <dt>方向</dt>
             <dd>Web 全栈 · 数据可视化 · AI 应用</dd>
           </div>
           <div>
@@ -47,6 +48,7 @@ const posts = sortPosts((await getCollection('blog')).filter((post) => !post.dat
             <dd>{site.availability}</dd>
           </div>
         </dl>
+        <a class="button button--accent hero__aside-cta" href={`mailto:${site.email}`}>发邮件聊聊</a>
       </section>
     </div>
   </section>
@@ -107,7 +109,7 @@ const posts = sortPosts((await getCollection('blog')).filter((post) => !post.dat
       <SectionHeading
         eyebrow="CONTACT"
         title="30 秒了解之后，欢迎聊得更具体。"
-        description="如果你在寻找全栈开发实习生、项目合作者，或只是想交流一个技术问题，都可以直接联系我。"
+        description="如果你正在寻找一位能独立完成前后端与 AI 应用的开发伙伴，或想交流一个具体的技术问题，都可以直接联系我。"
       />
       <ContactGrid />
     </div>

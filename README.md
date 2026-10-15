@@ -1,6 +1,6 @@
 # yuyirrr 个人作品集
 
-内容驱动、静态优先的个人作品集，包含首页、项目案例、关于、在线简历、PDF 简历、博客和 RSS。
+内容驱动、静态优先的个人作品集，包含首页、项目案例、关于、在线简历、PDF 简历和博客笔记。
 
 ## 技术栈
 
@@ -41,7 +41,7 @@ npm run test:e2e
 `npm run build` 依次执行：
 
 1. `astro check` 类型与内容模型检查。
-2. `astro build` 生成纯静态页面、站点地图和 RSS。
+2. `astro build` 生成纯静态页面和站点地图。
 3. Playwright 打开打印版简历并生成 `dist/resume.pdf`。
 
 ## 部署

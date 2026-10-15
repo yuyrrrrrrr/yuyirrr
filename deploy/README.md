@@ -44,7 +44,7 @@ sudo -u deploy chmod 600 /home/deploy/.ssh/authorized_keys
 ```bash
 curl -I https://yuyirrr.com/
 curl -I https://yuyirrr.com/resume.pdf
-curl -I https://yuyirrr.com/rss.xml
+curl -I https://yuyirrr.com/blog/
 ```
 
 同时检查证书自动续期：

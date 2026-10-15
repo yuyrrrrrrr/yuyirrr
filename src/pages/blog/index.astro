@@ -21,7 +21,6 @@ const posts = sortPosts((await getCollection('blog')).filter((post) => !post.dat
         {BLOG_TAG_KEYS.map((tag) => (
           <a class="pill" href={`/blog/tags/${tag}/`}>{blogTags[tag].label}</a>
         ))}
-        <a class="rss-link" href="/rss.xml">RSS 订阅 ↗</a>
       </div>
     </div>
   </section>

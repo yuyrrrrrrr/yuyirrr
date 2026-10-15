@@ -1,4 +1,6 @@
 ---
+import { site } from '../config/site';
+
 const currentPath = Astro.url.pathname.replace(/\/+$/, '') || '/';
 const navItems = [
   { href: '/', label: '首页', match: '/' },
@@ -13,8 +15,8 @@ const isActive = (match: string) => match === '/' ? currentPath === '/' : curren
 <header class="site-header">
   <div class="container site-header__bar">
     <a class="brand" href="/" aria-label="返回首页">
-      <span class="brand__mark">YU</span>
-      <span>个人作品集</span>
+      <span class="brand__mark">{site.shortName}</span>
+      <span>{site.name} · 作品集</span>
     </a>
     <nav class="nav" aria-label="主导航">
       {navItems.map((item) => (

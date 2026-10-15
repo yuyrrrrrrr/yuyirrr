@@ -11,7 +11,9 @@ const { print = false } = Astro.props;
       <p>{resume.headline}</p>
       <div class="resume-contact">
         <span>{resume.contact.location}</span>
+        <span>{resume.contact.age} 岁</span>
         <a href={`mailto:${resume.contact.email}`}>{resume.contact.email}</a>
+        <a href={`mailto:${resume.contact.emailAlt}`}>{resume.contact.emailAlt}</a>
         <a href={resume.contact.github}>GitHub</a>
         <span>{resume.contact.website}</span>
       </div>
