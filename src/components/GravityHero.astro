@@ -1,0 +1,528 @@
+<section class="gravity-hero" data-gravity aria-labelledby="gravity-title">
+  <h1 class="gravity-title" id="gravity-title" data-gravity-title><span>Made by</span> <span>yuyirrr</span></h1>
+  <canvas class="gravity-canvas" data-gravity-canvas aria-hidden="true"></canvas>
+</section>
+
+<script>
+  type ParticleState = 'home' | 'fall' | 'pile' | 'return';
+
+  interface Particle {
+    hx: number;
+    hy: number;
+    x: number;
+    y: number;
+    vx: number;
+    vy: number;
+    state: ParticleState;
+    size: number;
+    tone: number;
+    glyph: number;
+    startX: number;
+    startY: number;
+    delay: number;
+    t0: number;
+  }
+
+  const section = document.querySelector<HTMLElement>('[data-gravity]');
+  const canvas = document.querySelector<HTMLCanvasElement>('[data-gravity-canvas]');
+  const title = document.querySelector<HTMLElement>('[data-gravity-title]');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  if (section && canvas && title) {
+    const context = canvas.getContext('2d');
+
+    if (context) {
+      const root = section as HTMLElement;
+      const view = canvas as HTMLCanvasElement;
+      const ctx = context;
+      const text = title.textContent?.trim() ?? '';
+      const COLUMN = 4;
+      const FLOOR_GAP = 10;
+      const GRAVITY = 1900;
+      const RETURN_MS = 760;
+      const HEAL_DELAY = 2000;
+      const SECOND_WAVE_MS = 3000;
+      const GLYPHS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$#%&@+*=?!<>/';
+      const GLYPH_COLS = 8;
+      const GLYPH_CELL = 32;
+      const TONES = [
+        'rgba(255, 255, 255, 0.98)',
+        'rgba(255, 255, 255, 0.88)',
+        'rgba(255, 255, 255, 0.76)',
+        'rgba(255, 255, 255, 0.64)'
+      ];
+
+      let width = 0;
+      let height = 0;
+      let columns = 0;
+      let heights = new Float32Array(0);
+      let particles: Particle[] = [];
+      let raf = 0;
+      let lastTime = 0;
+      let healTimer = 0;
+      let resizeTimer = 0;
+      let displaced = false;
+      let pointer: { x: number; y: number } | null = null;
+      let pendingWave = 0;
+      let pendingParticles: Particle[] = [];
+      let atlases: HTMLCanvasElement[] = [];
+
+      const clamp = (value: number, min: number, max: number) =>
+        Math.min(max, Math.max(min, value));
+
+      const fontStack =
+        getComputedStyle(document.documentElement).getPropertyValue('--font-mono').trim() ||
+        'monospace';
+      const displayFont =
+        '"Arial Black", "Segoe UI Black", "Helvetica Neue", Arial, sans-serif';
+
+      function buildAtlas(color: string) {
+        const atlas = document.createElement('canvas');
+        atlas.width = GLYPH_COLS * GLYPH_CELL;
+        atlas.height = Math.ceil(GLYPHS.length / GLYPH_COLS) * GLYPH_CELL;
+        const paint = atlas.getContext('2d');
+        if (!paint) return atlas;
+        paint.fillStyle = color;
+        paint.font = `700 30px ${fontStack}`;
+        paint.textAlign = 'center';
+        paint.textBaseline = 'middle';
+        for (let index = 0; index < GLYPHS.length; index += 1) {
+          paint.fillText(
+            GLYPHS[index],
+            (index % GLYPH_COLS) * GLYPH_CELL + GLYPH_CELL / 2,
+            Math.floor(index / GLYPH_COLS) * GLYPH_CELL + GLYPH_CELL / 2
+          );
+        }
+        return atlas;
+      }
+
+      function sampleParticles() {
+        const off = document.createElement('canvas');
+        const offCtx = off.getContext('2d');
+        if (!offCtx) return [] as Particle[];
+
+        off.width = Math.max(1, Math.floor(width));
+        off.height = Math.max(1, Math.floor(height));
+
+        const narrow = width <= 720;
+        const lines = ['Made by', 'yuyirrr'];
+        const maxWidth = width * (narrow ? 0.9 : 0.86);
+        offCtx.font = `900 100px ${displayFont}`;
+        const base = Math.max(
+          ...lines.map((line) => offCtx.measureText(line).width),
+          1
+        );
+        const fontSize = Math.max(
+          22,
+          Math.min(
+            (100 * maxWidth) / base,
+            height * (narrow ? 0.34 : 0.3)
+          )
+        );
+
+        offCtx.clearRect(0, 0, off.width, off.height);
+        offCtx.font = `900 ${fontSize}px ${displayFont}`;
+        offCtx.textAlign = 'center';
+        offCtx.textBaseline = 'middle';
+        offCtx.fillStyle = '#ffffff';
+        const lineHeight = fontSize * 1.04;
+        const firstLineY = height / 2 - ((lines.length - 1) / 2) * lineHeight;
+        lines.forEach((line, index) => {
+          offCtx.fillText(line, width / 2, firstLineY + index * lineHeight);
+        });
+
+        const pixels = offCtx.getImageData(0, 0, off.width, off.height).data;
+        const grain = clamp(fontSize * 0.026, 3.2, 5.4);
+        const glyphSize = grain * 1.9;
+        let gap = grain;
+        const collected: Particle[] = [];
+
+        const collect = (step: number) => {
+          collected.length = 0;
+          for (let y = 0; y < height; y += step) {
+            const row = Math.floor(y) * off.width;
+            for (let x = 0; x < width; x += step) {
+              if (pixels[(row + Math.floor(x)) * 4 + 3] > 110) {
+                collected.push({
+                  hx: x,
+                  hy: y,
+                  x,
+                  y,
+                  vx: 0,
+                  vy: 0,
+                  state: 'home',
+                  size: glyphSize * (0.95 + Math.random() * 0.1),
+                  tone: (() => {
+                    const roll = Math.random();
+                    return roll < 0.55 ? 0 : roll < 0.8 ? 1 : roll < 0.92 ? 2 : 3;
+                  })(),
+                  glyph: Math.floor(Math.random() * GLYPHS.length),
+                  startX: x,
+                  startY: y,
+                  delay: 0,
+                  t0: 0
+                });
+              }
+            }
+          }
+        };
+
+        collect(gap);
+        while (collected.length > 6200) {
+          gap *= 1.18;
+          collect(gap);
+        }
+
+        return collected;
+      }
+
+      function draw() {
+        ctx.clearRect(0, 0, width, height);
+        if (!atlases.length) return;
+
+        for (const particle of particles) {
+          const atlas = atlases[particle.tone];
+          if (!atlas) continue;
+          const sx = (particle.glyph % GLYPH_COLS) * GLYPH_CELL;
+          const sy = Math.floor(particle.glyph / GLYPH_COLS) * GLYPH_CELL;
+          const size = particle.size;
+
+          ctx.drawImage(
+            atlas,
+            sx,
+            sy,
+            GLYPH_CELL,
+            GLYPH_CELL,
+            particle.x - size / 2,
+            particle.y - size / 2,
+            size,
+            size
+          );
+        }
+      }
+
+      function clearHealTimer() {
+        if (healTimer) {
+          window.clearTimeout(healTimer);
+          healTimer = 0;
+        }
+      }
+
+      function startLoop() {
+        if (raf) return;
+        lastTime = performance.now();
+        raf = requestAnimationFrame(tick);
+      }
+
+      function tick(now: number) {
+        const dt = Math.min(0.032, Math.max(0.001, (now - lastTime) / 1000));
+        lastTime = now;
+        let active = false;
+
+        for (const particle of particles) {
+          if (particle.state === 'fall') {
+            active = true;
+            particle.vy += GRAVITY * dt;
+            particle.vx *= Math.pow(0.985, dt * 60);
+            particle.x += particle.vx * dt;
+            particle.y += particle.vy * dt;
+
+            if (particle.x < 6) {
+              particle.x = 6;
+              particle.vx = Math.abs(particle.vx) * 0.35;
+            } else if (particle.x > width - 6) {
+              particle.x = width - 6;
+              particle.vx = -Math.abs(particle.vx) * 0.35;
+            }
+
+            const origin = clamp(Math.floor(particle.x / COLUMN), 0, columns - 1);
+            let column = origin;
+            for (let offset = -5; offset <= 5; offset += 1) {
+              const neighbor = clamp(origin + offset, 0, columns - 1);
+              if (heights[neighbor] < heights[column]) column = neighbor;
+            }
+            const ground = height - FLOOR_GAP - heights[column];
+
+            if (particle.y >= ground) {
+              particle.y = ground;
+              particle.x =
+                column * COLUMN + COLUMN / 2 + (Math.random() - 0.5) * COLUMN;
+              const spread = particle.size;
+              heights[column] += spread * 0.72;
+              if (column > 0) heights[column - 1] += spread * 0.11;
+              if (column < columns - 1) heights[column + 1] += spread * 0.11;
+              if (column > 1) heights[column - 2] += spread * 0.03;
+              if (column < columns - 2) heights[column + 2] += spread * 0.03;
+              particle.state = 'pile';
+            }
+          } else if (particle.state === 'return') {
+            active = true;
+            const progress = (now - particle.t0 - particle.delay) / RETURN_MS;
+
+            if (progress >= 1) {
+              particle.x = particle.hx;
+              particle.y = particle.hy;
+              particle.state = 'home';
+            } else if (progress > 0) {
+              const eased = 1 - Math.pow(1 - progress, 3);
+              particle.x = particle.startX + (particle.hx - particle.startX) * eased;
+              particle.y = particle.startY + (particle.hy - particle.startY) * eased;
+            }
+          }
+        }
+
+        draw();
+
+        if (active) {
+          raf = requestAnimationFrame(tick);
+        } else {
+          raf = 0;
+          if (displaced && !healTimer) {
+            healTimer = window.setTimeout(() => {
+              healTimer = 0;
+              if (displaced) rebuild();
+            }, HEAL_DELAY);
+          }
+        }
+      }
+
+      function detach(particle: Particle, vx: number, vy: number) {
+        particle.state = 'fall';
+        particle.vx = vx;
+        particle.vy = vy;
+      }
+
+      function cut(x0: number, y0: number, x1: number, y1: number) {
+        if (reduceMotion.matches) return;
+        const radius = 15;
+        const dx = x1 - x0;
+        const dy = y1 - y0;
+        const lengthSq = dx * dx + dy * dy || 1;
+        let hit = false;
+
+        for (const particle of particles) {
+          if (particle.state !== 'home') continue;
+          const t = clamp(
+            ((particle.x - x0) * dx + (particle.y - y0) * dy) / lengthSq,
+            0,
+            1
+          );
+          const cx = x0 + dx * t;
+          const cy = y0 + dy * t;
+          if (Math.hypot(particle.x - cx, particle.y - cy) < radius) {
+            detach(particle, (Math.random() - 0.5) * 90, -20 - Math.random() * 70);
+            hit = true;
+          }
+        }
+
+        if (hit) {
+          clearHealTimer();
+          clearPendingWave();
+          displaced = true;
+          startLoop();
+        }
+      }
+
+      function collapse() {
+        if (reduceMotion.matches) return;
+        let hit = false;
+
+        for (const particle of particles) {
+          if (particle.state !== 'home') continue;
+          detach(
+            particle,
+            (Math.random() - 0.5) * 90,
+            -20 - Math.random() * 110
+          );
+          hit = true;
+        }
+
+        if (hit) {
+          clearHealTimer();
+          clearPendingWave();
+          displaced = true;
+          startLoop();
+        }
+      }
+
+      function clearPendingWave() {
+        if (pendingWave) {
+          window.clearTimeout(pendingWave);
+          pendingWave = 0;
+        }
+        pendingParticles = [];
+      }
+
+      function startReturn(list: Particle[], extraDelay = 0) {
+        const now = performance.now();
+        for (const particle of list) {
+          particle.state = 'return';
+          particle.startX = particle.x;
+          particle.startY = particle.y;
+          particle.delay =
+            extraDelay + (particle.hx / width) * 420 + Math.random() * 90;
+          particle.t0 = now;
+          particle.vx = 0;
+          particle.vy = 0;
+        }
+        startLoop();
+      }
+
+      function rebuild() {
+        clearHealTimer();
+        clearPendingWave();
+        const resting = particles.filter((particle) => particle.state !== 'home');
+        if (!resting.length) return;
+
+        if (resting.length < 24) {
+          startReturn(resting);
+          heights.fill(0);
+          displaced = false;
+          return;
+        }
+
+        resting.sort((a, b) => a.hx - b.hx);
+        const split = Math.ceil(resting.length * 0.6);
+        startReturn(resting.slice(0, split));
+
+        pendingParticles = resting.slice(split);
+        pendingWave = window.setTimeout(() => {
+          pendingWave = 0;
+          if (!pendingParticles.length) return;
+          startReturn(pendingParticles);
+          pendingParticles = [];
+          heights.fill(0);
+        }, SECOND_WAVE_MS);
+
+        displaced = false;
+      }
+
+      function finishRebuild() {
+        clearHealTimer();
+        clearPendingWave();
+        const resting = particles.filter((particle) => particle.state !== 'home');
+        if (!resting.length) return;
+        startReturn(resting);
+        heights.fill(0);
+        displaced = false;
+      }
+
+      function setup(runIntro: boolean) {
+        const rect = root.getBoundingClientRect();
+        width = Math.max(1, Math.round(rect.width));
+        height = Math.max(1, Math.round(rect.height));
+
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        view.width = Math.round(width * dpr);
+        view.height = Math.round(height * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        columns = Math.ceil(width / COLUMN) + 1;
+        heights = new Float32Array(columns);
+        atlases = TONES.map((color) => buildAtlas(color));
+        particles = sampleParticles();
+
+        if (!particles.length) return;
+
+        if (runIntro) {
+          const now = performance.now();
+          for (const particle of particles) {
+            particle.x = width * 0.5 + (Math.random() - 0.5) * width * 0.68;
+            particle.y = height - 8 - Math.random() * Math.min(70, height * 0.09);
+            particle.state = 'return';
+            particle.startX = particle.x;
+            particle.startY = particle.y;
+            particle.delay = 140 + (particle.hx / width) * 300 + Math.random() * 120;
+            particle.t0 = now;
+          }
+        } else {
+          for (const particle of particles) {
+            particle.x = particle.hx;
+            particle.y = particle.hy;
+            particle.state = 'home';
+          }
+        }
+
+        displaced = false;
+        clearHealTimer();
+        root.dataset.ready = 'true';
+        draw();
+        if (runIntro) startLoop();
+      }
+
+      function tearDown() {
+        if (raf) cancelAnimationFrame(raf);
+        raf = 0;
+        clearHealTimer();
+        clearPendingWave();
+        root.removeAttribute('data-ready');
+        ctx.clearRect(0, 0, width, height);
+      }
+
+      view.addEventListener('pointermove', (event) => {
+        if (event.pointerType === 'touch') return;
+        const rect = view.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+        if (pointer) cut(pointer.x, pointer.y, x, y);
+        pointer = { x, y };
+      });
+
+      view.addEventListener('pointerleave', () => {
+        pointer = null;
+      });
+
+      view.addEventListener('pointerdown', (event) => {
+        const rect = view.getBoundingClientRect();
+        pointer =
+          event.pointerType === 'touch'
+            ? { x: event.clientX - rect.left, y: event.clientY - rect.top }
+            : pointer;
+      });
+
+      view.addEventListener('pointerup', (event) => {
+        if (reduceMotion.matches) return;
+        if (event.pointerType === 'mouse' && event.button !== 0) return;
+
+        const hasPile = particles.some((particle) => particle.state === 'pile');
+        const allHome = particles.every((particle) => particle.state === 'home');
+
+        if (hasPile) {
+          finishRebuild();
+        } else if (allHome) {
+          collapse();
+        }
+      });
+
+      window.addEventListener('resize', () => {
+        window.clearTimeout(resizeTimer);
+        resizeTimer = window.setTimeout(() => {
+          if (reduceMotion.matches) return;
+          if (raf) cancelAnimationFrame(raf);
+          raf = 0;
+          clearPendingWave();
+          setup(false);
+        }, 180);
+      });
+
+      reduceMotion.addEventListener('change', () => {
+        if (reduceMotion.matches) {
+          tearDown();
+        } else {
+          setup(false);
+        }
+      });
+
+      const boot = () => {
+        if (reduceMotion.matches) return;
+        setup(true);
+      };
+
+      if (document.fonts?.ready) {
+        document.fonts.ready.then(boot).catch(boot);
+      } else {
+        boot();
+      }
+    }
+  }
+</script>

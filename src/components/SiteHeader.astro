@@ -1,5 +1,5 @@
 ---
-import { site } from '../config/site';
+import { signaturePath, signatureViewBox } from '../data/signature';
 
 const currentPath = Astro.url.pathname.replace(/\/+$/, '') || '/';
 const navItems = [
@@ -14,9 +14,37 @@ const isActive = (match: string) => match === '/' ? currentPath === '/' : curren
 
 <header class="site-header">
   <div class="container site-header__bar">
-    <a class="brand" href="/" aria-label="返回首页">
-      <span class="brand__mark">{site.shortName}</span>
-      <span>{site.name} · 作品集</span>
+    <a class="brand" href="/" aria-label="yuyirrr 首页">
+      <svg
+        class="brand__signature"
+        viewBox={signatureViewBox}
+        aria-hidden="true"
+        focusable="false"
+      >
+        <defs>
+          <linearGradient
+            id="brand-signature"
+            x1="42"
+            y1="0"
+            x2="1398"
+            y2="0"
+            gradientUnits="userSpaceOnUse"
+          >
+            <stop offset="0" stop-color="#d9a05b"></stop>
+            <stop offset="0.35" stop-color="#b9a35f"></stop>
+            <stop offset="0.62" stop-color="#8a9a6f"></stop>
+            <stop offset="1" stop-color="#5a9a7a"></stop>
+          </linearGradient>
+        </defs>
+        <path
+          d={signaturePath}
+          fill="none"
+          stroke="url(#brand-signature)"
+          stroke-width="46"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        ></path>
+      </svg>
     </a>
     <nav class="nav" aria-label="主导航">
       {navItems.map((item) => (

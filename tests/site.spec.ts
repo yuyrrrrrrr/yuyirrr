@@ -1,13 +1,34 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
-test('首页在首屏呈现身份、技能方向、项目与联系入口', async ({ page }) => {
+test('首页首屏呈现 made by yuyirrr 与作品胶卷', async ({ page }) => {
   await page.goto('/');
-  await expect(page.getByRole('heading', { level: 1 })).toContainText('把复杂问题');
-  await expect(page.getByText('Web 全栈', { exact: false }).first()).toBeVisible();
-  await expect(page.getByRole('link', { name: '查看项目', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Made by yuyirrr');
+  await expect(page.locator('[data-gravity-canvas]')).toBeVisible();
   await expect(page.getByRole('link', { name: /联系我/ }).first()).toBeVisible();
-  await expect(page.locator('[data-project-card]')).toHaveCount(3);
+  await expect(page.getByRole('link', { name: /查看全部项目/ })).toBeVisible();
+  await expect(page.locator('[data-film-frame]')).toHaveCount(5);
+});
+
+test('关闭 JavaScript 时首页作品胶卷仍可浏览', async ({ browser }) => {
+  const context = await browser.newContext({ javaScriptEnabled: false });
+  const page = await context.newPage();
+  await page.goto('http://127.0.0.1:4321/');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Made by yuyirrr');
+  await expect(page.locator('[data-film-frame]')).toHaveCount(5);
+  await expect(page.getByRole('link', { name: /校园二手交易平台/ }).first()).toBeVisible();
+  await context.close();
+});
+
+test('减少动态效果时首屏直接显示可读文字', async ({ browser }) => {
+  const context = await browser.newContext({ reducedMotion: 'reduce' });
+  const page = await context.newPage();
+  await page.goto('http://127.0.0.1:4321/');
+  const heading = page.getByRole('heading', { level: 1 });
+  await expect(heading).toBeVisible();
+  const box = await heading.boundingBox();
+  expect(box?.width ?? 0).toBeGreaterThan(100);
+  await context.close();
 });
 
 test('项目分类按钮更新 URL，并可通过 URL 深链恢复', async ({ page }) => {

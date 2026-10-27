@@ -1,0 +1,184 @@
+---
+import type { ProjectEntry } from '../lib/content';
+import { projectCategories } from '../config/taxonomy';
+import { filmStills } from '../data/film';
+
+interface Props {
+  projects: ProjectEntry[];
+}
+
+const { projects } = Astro.props;
+const pad = (value: number) => String(value).padStart(2, '0');
+---
+
+<section class="film" data-film aria-labelledby="film-title">
+  <div class="film__sticky">
+    <div class="container film__inner">
+      <header class="film__head">
+        <div>
+          <span class="eyebrow">WORK</span>
+          <h2 id="film-title">项目</h2>
+        </div>
+        <a class="text-link" href="/projects/">查看全部项目 →</a>
+      </header>
+
+      <div class="film__viewport" data-film-viewport>
+        <ul class="film__track" data-film-track>
+          {projects.map((project, index) => {
+            const category = projectCategories[project.data.category];
+            const still = filmStills[index % filmStills.length];
+            return (
+              <li class="film__frame" data-film-frame style={`--category-color:${category.color}`}>
+                <a class="film__link" href={`/projects/${project.id}/`}>
+                  <span class="film__still">
+                    <img
+                      src={still.src}
+                      alt={still.alt}
+                      width="800"
+                      height="1000"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                    <span class="film__num" aria-hidden="true">{pad(index + 1)}</span>
+                  </span>
+                  <span class="film__caption">
+                    <span class="film__title">{project.data.title}</span>
+                    <span class="film__meta">
+                      <span class="film__dot" aria-hidden="true"></span>
+                      {category.label} · {project.data.period}
+                    </span>
+                  </span>
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+
+      <div class="film__rail" aria-hidden="true">
+        <span class="film__rail-line">
+          <span class="film__rail-progress" data-film-progress></span>
+          <span class="film__carriage"></span>
+        </span>
+        <span class="film__counter">
+          <span data-film-count>{pad(1)}</span> / {pad(projects.length)}
+        </span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  const section = document.querySelector<HTMLElement>('[data-film]');
+
+  if (section) {
+    const viewport = section.querySelector<HTMLElement>('[data-film-viewport]');
+    const track = section.querySelector<HTMLElement>('[data-film-track]');
+    const frames = Array.from(section.querySelectorAll<HTMLElement>('[data-film-frame]'));
+    const count = section.querySelector<HTMLElement>('[data-film-count]');
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const narrow = window.matchMedia('(max-width: 720px)');
+    const pad = (value: number) => String(value).padStart(2, '0');
+
+    let pinned = false;
+    let distance = 0;
+    let frameCenters: number[] = [];
+    let ticking = false;
+
+    const clamp = (value: number, min: number, max: number) =>
+      Math.min(max, Math.max(min, value));
+
+    const update = () => {
+      ticking = false;
+      if (!pinned || !track || !viewport || distance <= 0) return;
+
+      const progress = clamp(-section.getBoundingClientRect().top / distance, 0, 1);
+      const width = viewport.clientWidth;
+
+      track.style.transform = `translate3d(${-progress * distance}px, 0, 0)`;
+      section.style.setProperty('--p', progress.toFixed(4));
+
+      frameCenters.forEach((center, index) => {
+        const frame = frames[index];
+        const offset = (center - progress * distance - width / 2) / (width * 0.58);
+        const tilt = clamp(offset, -1.25, 1.25);
+        frame.style.setProperty('--ry', `${(-tilt * 20).toFixed(2)}deg`);
+        frame.style.setProperty('--tz', `${(-Math.abs(tilt) * 110).toFixed(1)}px`);
+        frame.style.setProperty('--scale', (1 - Math.abs(tilt) * 0.08).toFixed(3));
+        frame.style.setProperty('--dim', (1 - Math.abs(tilt) * 0.4).toFixed(2));
+      });
+
+      const current = Math.min(frames.length, Math.floor(progress * frames.length) + 1);
+      if (count && count.textContent !== pad(current)) count.textContent = pad(current);
+    };
+
+    const requestUpdate = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(update);
+    };
+
+    const layout = () => {
+      if (!track || !viewport) return;
+      pinned = !reduceMotion.matches && !narrow.matches && viewport.clientWidth > 0;
+
+      if (!pinned) {
+        section.removeAttribute('data-pinned');
+        section.style.removeProperty('--film-distance');
+        track.style.transform = '';
+        frames.forEach((frame) => {
+          frame.style.removeProperty('--ry');
+          frame.style.removeProperty('--tz');
+          frame.style.removeProperty('--scale');
+          frame.style.removeProperty('--dim');
+        });
+        return;
+      }
+
+      section.setAttribute('data-pinned', 'true');
+      distance = Math.max(0, track.scrollWidth - viewport.clientWidth);
+      section.style.setProperty('--film-distance', `${distance}px`);
+      frameCenters = frames.map((frame) => frame.offsetLeft + frame.offsetWidth / 2);
+      update();
+    };
+
+    window.addEventListener('scroll', requestUpdate, { passive: true });
+    window.addEventListener('resize', layout);
+    reduceMotion.addEventListener('change', layout);
+    narrow.addEventListener('change', layout);
+
+    if (window.matchMedia('(hover: hover)').matches) {
+      frames.forEach((frame) => {
+        frame.addEventListener('pointermove', (event) => {
+          if (!pinned) return;
+          const rect = frame.getBoundingClientRect();
+          const x = (event.clientX - rect.left) / rect.width - 0.5;
+          const y = (event.clientY - rect.top) / rect.height - 0.5;
+          frame.style.setProperty('--tilt-y', `${(x * 7).toFixed(2)}deg`);
+          frame.style.setProperty('--tilt-x', `${(-y * 7).toFixed(2)}deg`);
+        });
+        frame.addEventListener('pointerleave', () => {
+          frame.style.setProperty('--tilt-y', '0deg');
+          frame.style.setProperty('--tilt-x', '0deg');
+        });
+      });
+    }
+
+    section.addEventListener('focusin', (event) => {
+      if (!pinned || distance <= 0 || !viewport) return;
+      const target = event.target instanceof Element
+        ? event.target.closest('[data-film-frame]')
+        : null;
+      const index = target ? frames.indexOf(target as HTMLElement) : -1;
+      if (index < 0) return;
+
+      const progress = clamp((frameCenters[index] - viewport.clientWidth / 2) / distance, 0, 1);
+      window.scrollTo({
+        top: section.getBoundingClientRect().top + window.scrollY + progress * distance,
+        behavior: 'smooth'
+      });
+    });
+
+    layout();
+  }
+</script>

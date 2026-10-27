@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import '../styles/stage.css';
 import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import { site } from '../config/site';
@@ -10,6 +11,7 @@ interface Props {
   image?: string;
   type?: 'website' | 'article';
   noindex?: boolean;
+  theme?: 'paper' | 'stage';
   jsonLd?: Record<string, unknown> | Record<string, unknown>[];
 }
 
@@ -19,10 +21,14 @@ const {
   image = site.seo.ogImage,
   type = 'website',
   noindex = false,
+  theme = 'paper',
   jsonLd
 } = Astro.props;
 
-const pageTitle = title.includes(site.name) ? title : site.seo.titleTemplate.replace('%s', title);
+const pageTitle =
+  title === site.seo.defaultTitle || title.includes(site.name)
+    ? title
+    : site.seo.titleTemplate.replace('%s', title);
 const canonical = new URL(Astro.url.pathname, site.siteUrl).toString();
 const imageUrl = new URL(image, site.siteUrl).toString();
 const personJsonLd = {
@@ -39,12 +45,12 @@ const structuredData = jsonLd ? [personJsonLd, ...(Array.isArray(jsonLd) ? jsonL
 ---
 
 <!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme={theme}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
-    <meta name="theme-color" content="#fbfaf7" />
+    <meta name="theme-color" content={theme === 'stage' ? '#08090b' : '#fbfaf7'} />
     <meta name="description" content={description} />
     {noindex && <meta name="robots" content="noindex, nofollow" />}
     <link rel="canonical" href={canonical} />

@@ -5,14 +5,15 @@ interface Props {
   description?: string;
   actionHref?: string;
   actionLabel?: string;
+  id?: string;
 }
-const { eyebrow, title, description, actionHref, actionLabel } = Astro.props;
+const { eyebrow, title, description, actionHref, actionLabel, id } = Astro.props;
 ---
 
 <div class="section-head">
   <div class="section-head__copy">
     <span class="eyebrow">{eyebrow}</span>
-    <h2>{title}</h2>
+    <h2 id={id}>{title}</h2>
     {description && <p>{description}</p>}
   </div>
   {actionHref && actionLabel && <a class="text-link" href={actionHref}>{actionLabel} →</a>}

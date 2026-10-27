@@ -9,7 +9,7 @@ export const site = {
   longBio:
     '我用代码把模糊问题变成可用的产品。毕业后主要关注 Web 全栈、数据可视化和大模型应用，一边系统补齐短板，一边寻找能一起把事情做成的团队。',
   location: '中国 · 可远程',
-  availability: '2026 届毕业 · 正在学习与求职，开放全职 / 项目合作机会',
+  availability: '2026 届 · 开放全职 / 项目合作',
   email: 'bowenni940@gmail.com',
   emailAlt: '19144718828@163.com',
   github: 'https://github.com/yuyrrrrrrr',
@@ -18,8 +18,8 @@ export const site = {
   isSample: true,
   sampleNotice: '项目与经历为示例 · 待替换',
   seo: {
-    defaultTitle: '倪博文｜数据科学与大数据技术作品集',
-    titleTemplate: '%s｜倪博文',
+    defaultTitle: 'yuyirrr',
+    titleTemplate: '%s｜yuyirrr',
     defaultDescription:
       '倪博文的个人作品集，数据科学与大数据技术专业，展示全栈开发、算法与 AI 项目、技术笔记和在线简历，正在寻找全职与项目合作机会。',
     ogImage: '/og-default.png'
