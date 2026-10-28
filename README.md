@@ -1,6 +1,4 @@
-# yuyirrr · 倪博文的个人作品集
-
-数据科学与大数据技术专业，关注 Web 全栈、数据可视化与大模型应用。
+# yuyirrr · 的个人作品集
 
 在线访问：[https://yuyirrr.com](https://yuyirrr.com)
 
