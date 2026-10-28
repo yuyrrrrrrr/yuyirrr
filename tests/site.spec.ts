@@ -10,6 +10,37 @@ test('首页首屏呈现 made by yuyirrr 与作品胶卷', async ({ page }) => {
   await expect(page.locator('[data-film-frame]')).toHaveCount(5);
 });
 
+test('作品胶卷支持键盘切换与详情查看，关闭后保留浏览位置', async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(() => {
+    const section = document.querySelector<HTMLElement>('[data-film]');
+    if (!section) return;
+    window.scrollTo({
+      top: section.getBoundingClientRect().top + window.scrollY,
+      behavior: 'instant'
+    });
+  });
+  await expect(page.locator('[data-film]')).toHaveAttribute('data-pinned', 'true');
+
+  const activeLink = page.locator('[data-film-frame].is-active [data-film-open]');
+  await activeLink.focus();
+  await page.keyboard.press('ArrowRight');
+  await expect(page.locator('[data-film-count]')).toHaveText('02');
+  await page.waitForTimeout(900);
+
+  const position = await page.evaluate(() => window.scrollY);
+  await page.locator('[data-film-frame].is-active [data-film-open]').click();
+
+  const dialog = page.locator('[data-film-dialog]');
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByRole('heading', { level: 2 })).toHaveText('课程资料 RAG 问答助手');
+
+  await page.keyboard.press('Escape');
+  await expect(dialog).toBeHidden();
+  expect(await page.evaluate(() => window.scrollY)).toBe(position);
+  await expect(page.locator('[data-film-count]')).toHaveText('02');
+});
+
 test('关闭 JavaScript 时首页作品胶卷仍可浏览', async ({ browser }) => {
   const context = await browser.newContext({ javaScriptEnabled: false });
   const page = await context.newPage();
