@@ -53,7 +53,7 @@ src/
   components/     首屏、作品胶卷、项目卡片、导航等组件
   content/        projects 与 blog 的 Markdown/MDX 内容
   config/         站点资料、简历数据、项目分类与博客标签
-  data/           首页胶卷剧照与品牌签名数据
+  data/           首页胶卷剧照数据
   scripts/        Three.js 电影胶卷场景
   layouts/        共享布局、SEO 与结构化数据
   lib/            内容排序、日期与分类工具
