@@ -10,6 +10,28 @@ interface Props {
 const { projects } = Astro.props;
 const pad = (value: number) => String(value).padStart(2, '0');
 const lastIndex = Math.max(1, projects.length - 1);
+
+const items = projects.map((project, index) => {
+  const category = projectCategories[project.data.category];
+  const still = filmStills[index % filmStills.length];
+  const screen = project.data.gallery[0];
+  const attrs: Record<string, string> = {
+    'data-project-id': project.id,
+    'data-title': project.data.title,
+    'data-category': category.label,
+    'data-period': project.data.period,
+    'data-role': project.data.role,
+    'data-summary': project.data.summary,
+    'data-tech': project.data.tech.join(' · '),
+    'data-cover': project.data.cover,
+    'data-screen': screen?.src ?? '',
+    'data-screen-alt': screen?.alt ?? '',
+    'data-demo': project.data.links.demo ?? '',
+    'data-repo': project.data.links.repo ?? ''
+  };
+
+  return { project, index, category, still, screen, attrs, num: pad(index + 1) };
+});
 ---
 
 <section class="film" data-film aria-labelledby="film-title">
@@ -30,60 +52,84 @@ const lastIndex = Math.max(1, projects.length - 1);
       aria-label="精选项目作品带"
     >
       <ul class="film__track" data-film-track>
-        {projects.map((project, index) => {
-          const category = projectCategories[project.data.category];
-          const still = filmStills[index % filmStills.length];
-          const screen = project.data.gallery[0];
-          return (
-            <li
-              class="film__frame"
-              data-film-frame
-              style={`--category-color:${category.color}`}
+        <li class="film__lead" data-film-segment aria-hidden="true">
+          <span class="film__reel film__reel--lead">
+            <span class="film__lead-pane"></span>
+          </span>
+        </li>
+
+        {items.map((item) => (
+          <li
+            class="film__frame"
+            data-film-frame
+            data-film-segment
+            style={`--category-color:${item.category.color}`}
+          >
+            <a
+              class="film__link"
+              href={`/projects/${item.project.id}/`}
+              data-film-open
+              data-index={item.index}
+              {...item.attrs}
             >
-              <a
-                class="film__link"
-                href={`/projects/${project.id}/`}
-                data-film-open
-                data-title={project.data.title}
-                data-category={category.label}
-                data-period={project.data.period}
-                data-role={project.data.role}
-                data-summary={project.data.summary}
-                data-tech={project.data.tech.join(' · ')}
-                data-cover={project.data.cover}
-                data-screen={screen?.src ?? ''}
-                data-screen-alt={screen?.alt ?? ''}
-                data-demo={project.data.links.demo ?? ''}
-                data-repo={project.data.links.repo ?? ''}
-              >
-                <span class="film__reel">
-                  <span class="film__still">
-                    <img
-                      src={still.src}
-                      alt={still.alt}
-                      width={still.width}
-                      height={still.height}
-                      loading="lazy"
-                      decoding="async"
-                      draggable="false"
-                    />
-                  </span>
-                  <span class="film__num" aria-hidden="true">{pad(index + 1)}</span>
+              <span class="film__reel">
+                <span class="film__still">
+                  <img
+                    src={item.still.src}
+                    alt={item.still.alt}
+                    width={item.still.width}
+                    height={item.still.height}
+                    loading="lazy"
+                    decoding="async"
+                    draggable="false"
+                  />
                 </span>
-                <span class="film__caption">
-                  <span class="film__title">{project.data.title}</span>
-                  <span class="film__meta">
-                    <span class="film__dot" aria-hidden="true"></span>
-                    {category.label}
-                    <span aria-hidden="true">·</span>
-                    {project.data.period}
-                  </span>
+                <span class="film__num" aria-hidden="true">{item.num}</span>
+              </span>
+              <span class="film__caption">
+                <span class="film__title">{item.project.data.title}</span>
+                <span class="film__meta">
+                  <span class="film__dot" aria-hidden="true"></span>
+                  {item.category.label}
+                  <span aria-hidden="true">·</span>
+                  {item.project.data.period}
                 </span>
-              </a>
-            </li>
-          );
-        })}
+              </span>
+            </a>
+          </li>
+        ))}
+
+        <li class="film__lead film__lead--tail" data-film-segment aria-hidden="true">
+          <span class="film__reel film__reel--lead">
+            <span class="film__lead-pane"></span>
+          </span>
+        </li>
       </ul>
+
+      <canvas class="film__canvas" data-film-canvas aria-hidden="true"></canvas>
+
+      <div class="film__overlay-captions" data-film-captions>
+        {items.map((item) => (
+          <a
+            class="film__overlay-caption"
+            data-film-caption
+            data-index={item.index}
+            data-active={item.index === 0 ? 'true' : 'false'}
+            aria-current={item.index === 0 ? 'true' : undefined}
+            href={`/projects/${item.project.id}/`}
+            style={`--category-color:${item.category.color}`}
+            {...item.attrs}
+          >
+            <span class="film__title">{item.project.data.title}</span>
+            <span class="film__meta">
+              <span class="film__dot" aria-hidden="true"></span>
+              {item.category.label}
+              <span aria-hidden="true">·</span>
+              {item.project.data.period}
+            </span>
+          </a>
+        ))}
+      </div>
     </div>
 
     <div class="container film__hud">
@@ -108,15 +154,14 @@ const lastIndex = Math.max(1, projects.length - 1);
         ))}
       </div>
       <p class="film__hint" aria-hidden="true">滚轮 · 拖动 · ← →</p>
-    </div>
-
-    <div class="film__nav">
-      <button class="film__nav-btn" type="button" data-film-prev aria-label="上一个作品">
-        <span aria-hidden="true">←</span>
-      </button>
-      <button class="film__nav-btn" type="button" data-film-next aria-label="下一个作品">
-        <span aria-hidden="true">→</span>
-      </button>
+      <div class="film__hud-actions">
+        <button class="film__hud-btn" type="button" data-film-prev aria-label="上一个作品">
+          <span aria-hidden="true">←</span>
+        </button>
+        <button class="film__hud-btn" type="button" data-film-next aria-label="下一个作品">
+          <span aria-hidden="true">→</span>
+        </button>
+      </div>
     </div>
   </div>
 
@@ -155,12 +200,17 @@ const lastIndex = Math.max(1, projects.length - 1);
 </section>
 
 <script>
+  type ReelHandle = import('../scripts/film-reel').FilmReelHandle;
+
   const section = document.querySelector<HTMLElement>('[data-film]');
 
   if (section) {
     const viewport = section.querySelector<HTMLElement>('[data-film-viewport]');
     const track = section.querySelector<HTMLElement>('[data-film-track]');
+    const canvas = section.querySelector<HTMLCanvasElement>('[data-film-canvas]');
     const frames = Array.from(section.querySelectorAll<HTMLElement>('[data-film-frame]'));
+    const segments = Array.from(section.querySelectorAll<HTMLElement>('[data-film-segment]'));
+    const overlayCaptions = Array.from(section.querySelectorAll<HTMLAnchorElement>('[data-film-caption]'));
     const count = section.querySelector<HTMLElement>('[data-film-count]');
     const ticks = Array.from(section.querySelectorAll<HTMLButtonElement>('[data-film-tick]'));
     const prevButton = section.querySelector<HTMLButtonElement>('[data-film-prev]');
@@ -169,10 +219,17 @@ const lastIndex = Math.max(1, projects.length - 1);
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     const narrow = window.matchMedia('(max-width: 720px)');
     const pad = (value: number) => String(value).padStart(2, '0');
+    const toDegrees = 180 / Math.PI;
+    const waveLength = (Math.PI * 2) / 3.4;
+    const holePeriod = 22;
 
     let pinned = false;
     let distance = 0;
+    let pitch = 0;
+    let depthAmp = 0;
+    let liftAmp = 0;
     let frameCenters: number[] = [];
+    let segmentCenters: number[] = [];
     let activeIndex = -1;
     let ticking = false;
     let dragging = false;
@@ -182,6 +239,11 @@ const lastIndex = Math.max(1, projects.length - 1);
     let dragPointer: number | null = null;
     let dragStartX = 0;
     let dragLastX = 0;
+    let hoveredIndex: number | null = null;
+    let webglReady = false;
+    let webglPending = false;
+    let webglUnavailable = false;
+    let reel: ReelHandle | null = null;
 
     const clamp = (value: number, min: number, max: number) =>
       Math.min(max, Math.max(min, value));
@@ -192,6 +254,16 @@ const lastIndex = Math.max(1, projects.length - 1);
       root.style.scrollBehavior = 'auto';
       window.scrollTo(0, top);
       root.style.scrollBehavior = previous;
+    };
+
+    const setHovered = (index: number | null) => {
+      if (hoveredIndex === index) return;
+      hoveredIndex = index;
+      reel?.setHover(index);
+      overlayCaptions.forEach((caption, captionIndex) => {
+        if (captionIndex === index) caption.dataset.hover = 'true';
+        else delete caption.dataset.hover;
+      });
     };
 
     const setActive = (index: number) => {
@@ -207,6 +279,12 @@ const lastIndex = Math.max(1, projects.length - 1);
           if (isActive) link.setAttribute('aria-current', 'true');
           else link.removeAttribute('aria-current');
         }
+      });
+      overlayCaptions.forEach((caption, captionIndex) => {
+        const isActive = captionIndex === index;
+        caption.dataset.active = isActive ? 'true' : 'false';
+        if (isActive) caption.setAttribute('aria-current', 'true');
+        else caption.removeAttribute('aria-current');
       });
       ticks.forEach((tick, tickIndex) => {
         tick.setAttribute('aria-current', tickIndex === index ? 'true' : 'false');
@@ -225,26 +303,40 @@ const lastIndex = Math.max(1, projects.length - 1);
       let nearest = 0;
       let best = Number.POSITIVE_INFINITY;
 
-      track.style.transform = `translate3d(${-progress * distance}px, 0, 0)`;
-      section.style.setProperty('--p', progress.toFixed(4));
-
-      frameCenters.forEach((center, index) => {
-        const frame = frames[index];
-        const offset = center - focusX;
-        const delta = Math.abs(offset);
+      frames.forEach((_frame, index) => {
+        const delta = Math.abs(frameCenters[index] - focusX);
         if (delta < best) {
           best = delta;
           nearest = index;
         }
+      });
 
-        const t = clamp(offset / (width * 0.52), -1.8, 1.8);
-        const abs = Math.abs(t);
-        const focus = clamp(1 - abs * 1.15, 0, 1);
+      section.style.setProperty('--p', progress.toFixed(4));
 
-        frame.style.setProperty('--ry', `${clamp(-t * 24, -32, 32).toFixed(2)}deg`);
-        frame.style.setProperty('--tz', `${(-abs * 190).toFixed(1)}px`);
-        frame.style.setProperty('--s', (1 - abs * 0.11).toFixed(3));
-        frame.style.setProperty('--focus', focus.toFixed(3));
+      if (webglReady && section.hasAttribute('data-webgl')) {
+        reel?.setProgress(progress);
+        setActive(nearest);
+        return;
+      }
+
+      track.style.transform = `translate3d(${-progress * distance}px, 0, 0)`;
+
+      segments.forEach((segment, index) => {
+        const offset = segmentCenters[index] - focusX;
+        const u = offset / pitch;
+        const phase = u * waveLength;
+        const z = depthAmp * Math.cos(phase);
+        const y = liftAmp * (1 - Math.cos(phase));
+        const ry = Math.atan((depthAmp * waveLength * Math.sin(phase)) / pitch) * toDegrees;
+        const rz = Math.atan((liftAmp * waveLength * Math.sin(phase)) / pitch) * toDegrees;
+        const focus = Math.exp(-(u * u) / 1.25);
+
+        segment.style.setProperty('--z', `${z.toFixed(1)}px`);
+        segment.style.setProperty('--y', `${y.toFixed(1)}px`);
+        segment.style.setProperty('--ry', `${ry.toFixed(2)}deg`);
+        segment.style.setProperty('--rz', `${rz.toFixed(2)}deg`);
+        segment.style.setProperty('--focus', focus.toFixed(3));
+        segment.style.setProperty('--caption', (focus * focus * focus).toFixed(3));
       });
 
       setActive(nearest);
@@ -279,31 +371,100 @@ const lastIndex = Math.max(1, projects.length - 1);
       requestAnimationFrame(update);
     };
 
+    const clearSegmentTransforms = () => {
+      segments.forEach((segment) => {
+        segment.style.removeProperty('--z');
+        segment.style.removeProperty('--y');
+        segment.style.removeProperty('--ry');
+        segment.style.removeProperty('--rz');
+        segment.style.removeProperty('--focus');
+        segment.style.removeProperty('--caption');
+      });
+    };
+
     const layout = () => {
       if (!track || !viewport) return;
 
       pinned = !reduceMotion.matches && !narrow.matches && viewport.clientWidth > 0;
+      pitch = frames.length > 1
+        ? frames[1].offsetLeft - frames[0].offsetLeft
+        : (frames[0]?.offsetWidth ?? 0);
+
+      segments.forEach((segment) => {
+        const holeOffset = ((segment.offsetLeft % holePeriod) + holePeriod) % holePeriod;
+        segment.style.setProperty('--hole-x', `${-holeOffset}px`);
+      });
 
       if (!pinned) {
         section.removeAttribute('data-pinned');
+        section.removeAttribute('data-webgl');
         section.style.removeProperty('--film-distance');
+        section.style.removeProperty('--lead-w');
         track.style.transform = '';
-        frames.forEach((frame) => {
-          frame.style.removeProperty('--ry');
-          frame.style.removeProperty('--tz');
-          frame.style.removeProperty('--s');
-          frame.style.removeProperty('--focus');
-        });
+        reel?.setVisible(false);
+        clearSegmentTransforms();
         activeIndex = -1;
         updateRail();
         return;
       }
 
+      if (!webglReady && !webglPending && !webglUnavailable && viewport.clientWidth > 0) {
+        void enableWebgl();
+      }
+
+      if (webglReady) {
+        section.setAttribute('data-pinned', 'true');
+        section.setAttribute('data-webgl', 'true');
+        section.style.removeProperty('--lead-w');
+        track.style.transform = '';
+        clearSegmentTransforms();
+        reel?.setVisible(true);
+        reel?.resize();
+
+        distance = Math.max(0, track.scrollWidth - viewport.clientWidth);
+        section.style.setProperty('--film-distance', `${distance}px`);
+        frameCenters = frames.map((frame) => frame.offsetLeft + frame.offsetWidth / 2);
+        update();
+        return;
+      }
+
       section.setAttribute('data-pinned', 'true');
+      section.style.setProperty('--lead-w', `${Math.max(0, (viewport.clientWidth - pitch) / 2)}px`);
       distance = Math.max(0, track.scrollWidth - viewport.clientWidth);
       section.style.setProperty('--film-distance', `${distance}px`);
       frameCenters = frames.map((frame) => frame.offsetLeft + frame.offsetWidth / 2);
+      segmentCenters = segments.map((segment) => segment.offsetLeft + segment.offsetWidth / 2);
+      depthAmp = clamp(pitch * 0.3, 60, 340);
+      liftAmp = clamp(pitch * 0.032, 8, 34);
       update();
+    };
+
+    const enableWebgl = async () => {
+      if (webglPending || webglReady || webglUnavailable || !canvas || !viewport) return;
+      webglPending = true;
+
+      try {
+        const { initFilmReel } = await import('../scripts/film-reel');
+        const images = frames.map(
+          (frame) => frame.querySelector<HTMLImageElement>('img')?.getAttribute('src') ?? ''
+        );
+        const handle = await initFilmReel({
+          canvas,
+          viewport,
+          images,
+          captions: overlayCaptions
+        });
+        reel = handle;
+        webglReady = true;
+        section.setAttribute('data-webgl', 'true');
+        handle.setVisible(true);
+        layout();
+      } catch {
+        webglUnavailable = true;
+        section.removeAttribute('data-webgl');
+      } finally {
+        webglPending = false;
+      }
     };
 
     const goTo = (index: number, behavior: ScrollBehavior = 'smooth') => {
@@ -364,10 +525,18 @@ const lastIndex = Math.max(1, projects.length - 1);
 
     section.addEventListener('focusin', (event) => {
       if (suppressFocusScroll || !(event.target instanceof Element)) return;
-      const frame = event.target.closest<HTMLElement>('[data-film-frame]');
-      if (!frame) return;
       const target = event.target as HTMLElement;
       if (!target.matches(':focus-visible')) return;
+
+      const caption = target.closest<HTMLElement>('[data-film-caption]');
+      if (caption) {
+        const index = Number(caption.dataset.index);
+        if (Number.isFinite(index)) goTo(index);
+        return;
+      }
+
+      const frame = target.closest<HTMLElement>('[data-film-frame]');
+      if (!frame) return;
 
       const index = frames.indexOf(frame);
       if (index < 0) return;
@@ -397,6 +566,7 @@ const lastIndex = Math.max(1, projects.length - 1);
           dragging = true;
           viewport.setPointerCapture(event.pointerId);
           section.classList.add('is-dragging');
+          setHovered(null);
         }
         if (!dragging) return;
 
@@ -427,6 +597,41 @@ const lastIndex = Math.max(1, projects.length - 1);
       viewport.addEventListener('pointerup', endDrag);
       viewport.addEventListener('pointercancel', endDrag);
     }
+
+    canvas?.addEventListener('pointermove', (event) => {
+      if (!webglReady || dragging) return;
+      setHovered(reel?.pick(event.clientX, event.clientY) ?? null);
+    });
+
+    canvas?.addEventListener('pointerleave', () => {
+      setHovered(null);
+    });
+
+    canvas?.addEventListener('click', (event) => {
+      if (!webglReady || !reel) return;
+      if (suppressClick) {
+        suppressClick = false;
+        return;
+      }
+      if (
+        event.defaultPrevented ||
+        event.button !== 0 ||
+        event.metaKey ||
+        event.ctrlKey ||
+        event.shiftKey ||
+        event.altKey
+      ) {
+        return;
+      }
+
+      const index = reel.pick(event.clientX, event.clientY);
+      if (index === null) return;
+      const link = overlayCaptions[index] ?? frames[index]?.querySelector<HTMLAnchorElement>('[data-film-open]');
+      if (!link) return;
+
+      event.preventDefault();
+      openDialog(link);
+    });
 
     const setText = (name: string, value: string) => {
       const node = dialog?.querySelector<HTMLElement>(`[data-film-${name}]`);
@@ -490,8 +695,12 @@ const lastIndex = Math.max(1, projects.length - 1);
       syncLink('demo', data.demo);
       syncLink('repo', data.repo);
 
-      const index = frames.findIndex((frame) => frame.contains(link));
+      const dataIndex = Number(data.index);
+      const index = Number.isFinite(dataIndex)
+        ? dataIndex
+        : frames.findIndex((frame) => frame.contains(link));
       setText('num', index >= 0 ? `${pad(index + 1)} / ${pad(frames.length)}` : '');
+      dialog.dataset.projectId = data.projectId ?? '';
 
       opener = link;
       const scrollbar = window.innerWidth - document.documentElement.clientWidth;
@@ -520,10 +729,8 @@ const lastIndex = Math.max(1, projects.length - 1);
       opener = null;
     });
 
-    frames.forEach((frame) => {
-      const link = frame.querySelector<HTMLAnchorElement>('[data-film-open]');
-      if (!link) return;
-      link.addEventListener('click', (event) => {
+    overlayCaptions.forEach((caption) => {
+      caption.addEventListener('click', (event) => {
         if (suppressClick) {
           event.preventDefault();
           suppressClick = false;
@@ -542,8 +749,36 @@ const lastIndex = Math.max(1, projects.length - 1);
         if (!dialog || typeof dialog.showModal !== 'function') return;
 
         event.preventDefault();
-        openDialog(link);
+        openDialog(caption);
       });
+    });
+
+    track?.addEventListener('click', (event) => {
+      const target = event.target instanceof Element
+        ? event.target.closest<HTMLAnchorElement>('[data-film-open]')
+        : null;
+      if (!target) return;
+
+      if (suppressClick) {
+        event.preventDefault();
+        suppressClick = false;
+        return;
+      }
+      if (
+        event.defaultPrevented ||
+        event.button !== 0 ||
+        event.metaKey ||
+        event.ctrlKey ||
+        event.shiftKey ||
+        event.altKey
+      ) {
+        return;
+      }
+      if (!dialog || typeof dialog.showModal !== 'function') return;
+      if (section.hasAttribute('data-webgl')) return;
+
+      event.preventDefault();
+      openDialog(target);
     });
 
     section.setAttribute('data-enhanced', 'true');

@@ -6,5 +6,5 @@ export const filmStills = [
   { src: '/images/film/02-ink.jpg', alt: '', width: 1600, height: 900 },
   { src: '/images/film/03-mediastorm.jpg', alt: '', width: 1600, height: 900 },
   { src: '/images/film/04-progress.jpg', alt: '', width: 1600, height: 900 },
-  { src: '/images/film/05-city.jpg', alt: '', width: 1600, height: 900 }
+  { src: '/images/film/05-api.jpg', alt: '', width: 1600, height: 900 }
 ] as const;

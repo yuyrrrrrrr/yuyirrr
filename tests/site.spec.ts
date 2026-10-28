@@ -10,8 +10,11 @@ test('首页首屏呈现 made by yuyirrr 与作品胶卷', async ({ page }) => {
   await expect(page.locator('[data-film-frame]')).toHaveCount(5);
 });
 
-test('作品胶卷支持键盘切换与详情查看，关闭后保留浏览位置', async ({ page }) => {
+test('3D 胶卷的每个画面都能打开对应详情，关闭后保留位置', async ({ page }) => {
   await page.goto('/');
+  await expect(page.locator('[data-film]')).toHaveAttribute('data-webgl', 'true', {
+    timeout: 15_000
+  });
   await page.evaluate(() => {
     const section = document.querySelector<HTMLElement>('[data-film]');
     if (!section) return;
@@ -21,24 +24,54 @@ test('作品胶卷支持键盘切换与详情查看，关闭后保留浏览位�
     });
   });
   await expect(page.locator('[data-film]')).toHaveAttribute('data-pinned', 'true');
+  await page.waitForTimeout(500);
 
-  const activeLink = page.locator('[data-film-frame].is-active [data-film-open]');
-  await activeLink.focus();
-  await page.keyboard.press('ArrowRight');
-  await expect(page.locator('[data-film-count]')).toHaveText('02');
-  await page.waitForTimeout(900);
+  const box = await page.locator('[data-film-viewport]').boundingBox();
+  expect(box).not.toBeNull();
+  if (!box) return;
 
-  const position = await page.evaluate(() => window.scrollY);
-  await page.locator('[data-film-frame].is-active [data-film-open]').click();
-
+  const titles = [
+    '校园二手交易平台',
+    '课程资料 RAG 问答助手',
+    '校园路径规划可视化',
+    '组件化学习仪表盘',
+    '校园活动报名 API'
+  ];
   const dialog = page.locator('[data-film-dialog]');
-  await expect(dialog).toBeVisible();
-  await expect(dialog.getByRole('heading', { level: 2 })).toHaveText('课程资料 RAG 问答助手');
+  const heading = dialog.getByRole('heading', { level: 2 });
+  const count = page.locator('[data-film-count]');
+  const clickPanel = async (xRatio: number, expectedTitle: string) => {
+    await page.mouse.click(box.x + box.width * xRatio, box.y + box.height * 0.45);
+    await expect(dialog).toBeVisible();
+    await expect(heading).toHaveText(expectedTitle);
+    await page.keyboard.press('Escape');
+    await expect(dialog).toBeHidden();
+  };
 
+  // 右侧相邻画面也能独立打开自己的项目。
+  await clickPanel(0.9, titles[1]);
+
+  // 键盘切换后，详情内容仍然对应新的作品。
+  await page.locator('[data-film-caption][data-active="true"]').focus();
+  await page.keyboard.press('ArrowRight');
+  await expect(count).toHaveText('02');
+  await page.waitForTimeout(700);
+
+  for (let index = 0; index < titles.length; index += 1) {
+    await page.locator('[data-film-tick]').nth(index).click();
+    await expect(count).toHaveText(String(index + 1).padStart(2, '0'));
+    await page.waitForTimeout(700);
+
+    const position = await page.evaluate(() => window.scrollY);
+    await clickPanel(0.5, titles[index]);
+    expect(await page.evaluate(() => window.scrollY)).toBe(position);
+  }
+
+  await page.locator('[data-film-caption][data-active="true"]').click();
+  await expect(dialog).toBeVisible();
+  await expect(heading).toHaveText(titles[titles.length - 1]);
   await page.keyboard.press('Escape');
   await expect(dialog).toBeHidden();
-  expect(await page.evaluate(() => window.scrollY)).toBe(position);
-  await expect(page.locator('[data-film-count]')).toHaveText('02');
 });
 
 test('关闭 JavaScript 时首页作品胶卷仍可浏览', async ({ browser }) => {
