@@ -5,6 +5,8 @@
   "private": true,
   "scripts": {
     "dev": "astro dev",
+    "model:dev": "node model/server.mjs",
+    "model:test": "node --test --test-isolation=none model/server.test.mjs",
     "check": "astro check",
     "build:site": "astro build",
     "pdf": "node scripts/generate-resume-pdf.mjs",
@@ -13,6 +15,9 @@
     "test:e2e": "playwright test",
     "verify": "npm run build && npm run test:e2e",
     "assets": "node scripts/generate-art.mjs"
+  },
+  "engines": {
+    "node": ">=24"
   },
   "dependencies": {
     "@astrojs/mdx": "4.3.3",

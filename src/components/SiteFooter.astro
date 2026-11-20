@@ -13,15 +13,14 @@ const year = new Date().getFullYear();
       <div class="footer-links">
         <strong>站内</strong>
         <a href="/projects/">项目</a>
-        <a href="/resume/">在线简历</a>
+        <a href="/about/#resume">关于 / 简历</a>
         <a href="/blog/">博客/笔记</a>
-        <a href="/about/">关于</a>
       </div>
       <div class="footer-links">
         <strong>联系</strong>
-        <a href={`mailto:${site.email}`}>Gmail</a>
-        <a href={`mailto:${site.emailAlt}`}>163 邮箱</a>
-        <a href={site.github} target="_blank" rel="noreferrer">GitHub ↗</a>
+        <button type="button" data-contact-trigger data-contact-option="Gmail">Gmail</button>
+        <button type="button" data-contact-trigger data-contact-option="163 邮箱">163 邮箱</button>
+        <button type="button" data-contact-trigger data-contact-option="GitHub">GitHub ↗</button>
       </div>
     </div>
     <div class="footer-bottom">

@@ -22,7 +22,8 @@ const PITCH = PANEL_W + GAP;
 const IMAGE_H = PANEL_W * (9 / 16);
 const RAIL_H = 0.035;
 const BAND_H = IMAGE_H + RAIL_H * 2;
-const LEAD = 1;
+// 首尾片基需覆盖宽屏两侧，避免第一帧左侧和最后一帧右侧露出空白。
+const LEAD = 4;
 const WAVE_PERIOD = 3.4;
 const WAVE = (Math.PI * 2) / WAVE_PERIOD;
 const DEPTH = 0.28;

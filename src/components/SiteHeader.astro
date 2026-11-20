@@ -3,7 +3,6 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, '') || '/';
 const navItems = [
   { href: '/', label: '首页', match: '/' },
   { href: '/projects/', label: '项目', match: '/projects' },
-  { href: '/resume/', label: '简历', match: '/resume' },
   { href: '/blog/', label: '博客/笔记', match: '/blog' },
   { href: '/about/', label: '关于', match: '/about' }
 ];
@@ -28,14 +27,14 @@ const isActive = (match: string) => match === '/' ? currentPath === '/' : curren
         <a href={item.href} aria-current={isActive(item.match) ? 'page' : undefined}>{item.label}</a>
       ))}
     </nav>
-    <a class="button button--primary header-cta" href="/about/#contact">联系我</a>
+    <button class="button button--primary header-cta" type="button" data-contact-trigger>联系我</button>
     <details class="mobile-nav">
       <summary>导航菜单</summary>
       <nav aria-label="移动端导航">
         {navItems.map((item) => (
           <a href={item.href} aria-current={isActive(item.match) ? 'page' : undefined}>{item.label}</a>
         ))}
-        <a href="/about/#contact">联系我</a>
+        <button type="button" data-contact-trigger>联系我</button>
       </nav>
     </details>
   </div>

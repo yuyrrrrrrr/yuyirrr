@@ -1,0 +1,101 @@
+---
+import { site } from '../config/site';
+
+const contactOptions = [
+  { label: 'Gmail', value: site.email },
+  { label: '163 邮箱', value: site.emailAlt },
+  { label: 'GitHub', value: site.github }
+];
+---
+
+<dialog class="contact-dialog" aria-labelledby="contact-dialog-title" data-contact-dialog>
+  <div class="contact-dialog__inner">
+    <header class="contact-dialog__header">
+      <div>
+        <span class="eyebrow">CONTACT</span>
+        <h2 id="contact-dialog-title">复制联系方式</h2>
+        <p>点击任意一项即可复制，不会打开外部网站。</p>
+      </div>
+      <button
+        class="contact-dialog__close"
+        type="button"
+        aria-label="关闭联系方式"
+        data-dialog-close
+      >×</button>
+    </header>
+
+    <div class="contact-dialog__options">
+      {contactOptions.map((option) => (
+        <button
+          class="contact-dialog__option"
+          type="button"
+          data-copy-value={option.value}
+          data-copy-label={option.label}
+        >
+          <span>
+            <small>{option.label}</small>
+            <code>{option.value}</code>
+          </span>
+          <strong>复制</strong>
+        </button>
+      ))}
+    </div>
+
+    <p class="contact-dialog__status" role="status" aria-live="polite" data-copy-status></p>
+  </div>
+</dialog>
+
+<script>
+  const dialog = document.querySelector<HTMLDialogElement>('[data-contact-dialog]');
+
+  if (dialog) {
+    const status = dialog.querySelector<HTMLElement>('[data-copy-status]');
+    let resetTimer: ReturnType<typeof setTimeout> | undefined;
+
+    const openDialog = (event: Event) => {
+      event.preventDefault();
+      const trigger = event.currentTarget as HTMLElement;
+      trigger.closest('details')?.removeAttribute('open');
+      dialog.showModal();
+      const preferredOption = Array.from(
+        dialog.querySelectorAll<HTMLButtonElement>('[data-copy-value]')
+      ).find((button) => button.dataset.copyLabel === trigger.dataset.contactOption);
+      (preferredOption ?? dialog.querySelector<HTMLButtonElement>('[data-copy-value]'))?.focus();
+    };
+
+    document.querySelectorAll('[data-contact-trigger]').forEach((trigger) => {
+      trigger.addEventListener('click', openDialog);
+    });
+
+    dialog.querySelector('[data-dialog-close]')?.addEventListener('click', () => dialog.close());
+    dialog.addEventListener('click', (event) => {
+      if (event.target === dialog) dialog.close();
+    });
+
+    dialog.querySelectorAll<HTMLButtonElement>('[data-copy-value]').forEach((button) => {
+      button.addEventListener('click', async () => {
+        const value = button.dataset.copyValue ?? '';
+        const label = button.dataset.copyLabel ?? '';
+
+        try {
+          await navigator.clipboard.writeText(value);
+        } catch {
+          const textarea = document.createElement('textarea');
+          textarea.value = value;
+          textarea.style.position = 'fixed';
+          textarea.style.opacity = '0';
+          document.body.append(textarea);
+          textarea.select();
+          document.execCommand('copy');
+          textarea.remove();
+        }
+
+        if (status) status.textContent = `已复制 ${label}`;
+        if (resetTimer) clearTimeout(resetTimer);
+        resetTimer = setTimeout(() => {
+          if (status) status.textContent = '';
+        }, 2200);
+      });
+    });
+  }
+</script>

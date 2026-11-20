@@ -6,7 +6,6 @@ import FilmGallery from '../components/FilmGallery.astro';
 import SectionHeading from '../components/SectionHeading.astro';
 import BlogCard from '../components/BlogCard.astro';
 import ContactGrid from '../components/ContactGrid.astro';
-import { techGroups } from '../config/site';
 import { sortPosts, sortProjects } from '../lib/content';
 
 const projects = sortProjects((await getCollection('projects')).filter((project) => !project.data.draft));
@@ -15,21 +14,6 @@ const posts = sortPosts((await getCollection('blog')).filter((post) => !post.dat
 
 <BaseLayout theme="stage">
   <GravityHero />
-
-  <section class="section toolkit" aria-labelledby="toolkit-title">
-    <div class="container">
-      <SectionHeading eyebrow="TOOLKIT" title="技术栈" id="toolkit-title" />
-      <div class="toolkit__grid">
-        {techGroups.map((group, index) => (
-          <article class="toolkit__group">
-            <span class="toolkit__index">0{index + 1}</span>
-            <h3>{group.label}</h3>
-            <ul>{group.items.map((item) => <li>{item}</li>)}</ul>
-          </article>
-        ))}
-      </div>
-    </div>
-  </section>
 
   <FilmGallery projects={projects} />
 

@@ -7,5 +7,6 @@ playwright-report/
 .env
 .env.*
 !.env.example
+model/data/
 .DS_Store
 Thumbs.db

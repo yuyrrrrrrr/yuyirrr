@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f4f1e9" />
+    <meta
+      name="description"
+      content="基于 Ollama 与 MiniMind 的轻量对话页面，会话只保留 24 小时。"
+    />
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/styles.css" />
+    <title>MiniMind · 24 小时对话</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#messages">跳到对话内容</a>
+
+    <div class="shell">
+      <aside class="sidebar">
+        <a class="brand" href="/" aria-label="MiniMind 对话首页">
+          <span class="brand__mark" aria-hidden="true">M</span>
+          <span>
+            <strong>MiniMind</strong>
+            <small>tiny model, honest answers</small>
+          </span>
+        </a>
+
+        <button class="new-chat" id="new-chat" type="button">
+          <span aria-hidden="true">＋</span>
+          新对话
+        </button>
+
+        <section class="history" aria-labelledby="history-title">
+          <div class="history__head">
+            <h2 id="history-title">最近会话</h2>
+            <span id="history-count">0</span>
+          </div>
+          <div class="history__list" id="history-list"></div>
+        </section>
+
+        <div class="sidebar__foot">
+          <div class="memory-card">
+            <span class="memory-card__dot" aria-hidden="true"></span>
+            <div>
+              <strong>短暂记忆</strong>
+              <p>对话、当前状态和页面记录会在 24 小时后自动删除。</p>
+            </div>
+          </div>
+          <button class="text-button" id="reset-session" type="button">
+            清除本次全部记录
+          </button>
+        </div>
+      </aside>
+
+      <main class="chat">
+        <header class="topbar">
+          <div class="model-title">
+            <div class="model-title__status" aria-hidden="true"></div>
+            <div>
+              <div class="model-title__row">
+                <h1>MiniMind</h1>
+                <span class="model-pill" id="model-name">加载中</span>
+              </div>
+              <p>基于 Ollama 运行 · 回答可能不准确</p>
+            </div>
+          </div>
+          <div class="expiry" aria-label="记录剩余时间">
+            <span>记录剩余</span>
+            <strong id="expiry-time">--:--</strong>
+          </div>
+        </header>
+
+        <section class="messages" id="messages" aria-live="polite">
+          <div class="empty-state" id="empty-state">
+            <p class="eyebrow">A SMALL CONVERSATION</p>
+            <h2>有什么想法，<br />从一句话开始。</h2>
+            <p class="empty-state__copy">
+              我会记住这段对话，直到一整天过去。可以提问、写草稿，或者让我陪你理清一个念头。
+            </p>
+            <div class="prompts" aria-label="示例问题">
+              <button type="button" data-prompt="用三句话解释什么是大语言模型。">
+                <span>01</span>
+                解释一个概念
+              </button>
+              <button type="button" data-prompt="帮我把下面这段想法整理成清晰的大纲：">
+                <span>02</span>
+                整理一段想法
+              </button>
+              <button type="button" data-prompt="写一个简短的 JavaScript 函数，并解释关键步骤。">
+                <span>03</span>
+                写一小段代码
+              </button>
+            </div>
+          </div>
+          <div class="message-list" id="message-list"></div>
+        </section>
+
+        <form class="composer" id="composer">
+          <label class="sr-only" for="message-input">输入消息</label>
+          <textarea
+            id="message-input"
+            name="message"
+            rows="1"
+            maxlength="4000"
+            placeholder="输入消息，Enter 发送，Shift + Enter 换行"
+            required
+          ></textarea>
+          <div class="composer__foot">
+            <span id="input-hint">0 / 4000</span>
+            <div class="composer__actions">
+              <span class="sending-label" id="sending-label">正在思考…</span>
+              <button class="send" id="send" type="submit" aria-label="发送消息">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M5 12h13M13 6l6 6-6 6" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </form>
+        <div class="notice" id="notice" role="status" aria-live="polite"></div>
+      </main>
+    </div>
+
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>

@@ -22,7 +22,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20.19.5
+          node-version: 24
           cache: npm
 
       - name: Install dependencies
@@ -30,6 +30,9 @@ jobs:
 
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
+
+      - name: Test MiniMind service
+        run: npm run model:test
 
       - name: Build static site and PDF
         env:
@@ -48,6 +51,13 @@ jobs:
           path: dist
           retention-days: 7
 
+      - name: Upload model artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: yuyirrr-model
+          path: model
+          retention-days: 7
+
   deploy:
     needs: build
     if: github.ref == 'refs/heads/main'
@@ -59,6 +69,12 @@ jobs:
         with:
           name: yuyirrr-dist
           path: dist
+
+      - name: Download model artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: yuyirrr-model
+          path: model
 
       - name: Configure SSH
         env:
@@ -88,5 +104,20 @@ jobs:
           rsync -az --delete -e "ssh $SSH_OPTS" dist/ "$TARGET:$RELEASE/"
           ssh $SSH_OPTS "$TARGET" "chmod -R u=rwX,g=rX,o=rX '$RELEASE'"
           ssh $SSH_OPTS "$TARGET" "cd /var/www/yuyirrr && ln -s 'releases/$GITHUB_SHA' '.current-$GITHUB_SHA' && mv -Tf '.current-$GITHUB_SHA' current && find releases -mindepth 1 -maxdepth 1 -type d -printf '%T@ %p\n' | sort -rn | tail -n +6 | cut -d' ' -f2- | xargs -r rm -rf"
+
+      - name: Publish model subdomain
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_PORT: ${{ secrets.DEPLOY_PORT }}
+        run: |
+          PORT="${DEPLOY_PORT:-22}"
+          TARGET="$DEPLOY_USER@$DEPLOY_HOST"
+          MODEL_RELEASE="/var/www/yuyirrr-model/releases/$GITHUB_SHA"
+          SSH_OPTS="-i $HOME/.ssh/yuyirrr_deploy -p $PORT -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes"
+          ssh $SSH_OPTS "$TARGET" "mkdir -p '$MODEL_RELEASE'"
+          rsync -az --delete -e "ssh $SSH_OPTS" model/ "$TARGET:$MODEL_RELEASE/"
+          ssh $SSH_OPTS "$TARGET" "chmod -R u=rwX,g=rX,o=rX '$MODEL_RELEASE'"
+          ssh $SSH_OPTS "$TARGET" "cd /var/www/yuyirrr-model && ln -s 'releases/$GITHUB_SHA' '.current-$GITHUB_SHA' && mv -Tf '.current-$GITHUB_SHA' current && find releases -mindepth 1 -maxdepth 1 -type d -printf '%T@ %p\n' | sort -rn | tail -n +6 | cut -d' ' -f2- | xargs -r rm -rf && export XDG_RUNTIME_DIR=/run/user/\$(id -u) && systemctl --user restart yuyirrr-model && systemctl --user is-active --quiet yuyirrr-model"
 
 

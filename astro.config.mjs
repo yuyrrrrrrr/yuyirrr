@@ -6,6 +6,9 @@ export default defineConfig({
   site: 'https://yuyirrr.com',
   output: 'static',
   trailingSlash: 'always',
+  devToolbar: {
+    enabled: false
+  },
   integrations: [
     mdx(),
     sitemap({

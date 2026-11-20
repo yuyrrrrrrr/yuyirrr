@@ -1,107 +1,1112 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import SectionHeading from '../components/SectionHeading.astro';
-import ContactGrid from '../components/ContactGrid.astro';
-import { site, techGroups } from '../config/site';
 import { resume } from '../config/resume';
+import { site } from '../config/site';
+
+const skills = [...new Set(resume.skillGroups.flatMap((group) => group.items))];
+const learning = ['Machine Learning', 'Deep Learning', 'LLM & Agent', 'GraphRAG', 'Web Performance'];
 ---
 
 <BaseLayout
   title="关于"
-  description={`${site.name}的个人简介、教育背景、技能、经历、奖项和联系方式。`}
+  description={`${site.name}的个人简介、技能、项目，以及可在线查看和下载的简历。`}
+  hideFooter
 >
-  <section class="page-hero">
-    <div class="container">
-      <span class="eyebrow">ABOUT ME</span>
-      <h1>保持好奇，把每一件作品做得更清楚一点。</h1>
-      <p>{site.longBio}</p>
-    </div>
-  </section>
+  <div class="about-readme">
+    <aside class="portrait-column" aria-label="倪博文的文字肖像">
+      <figure class="word-portrait" data-word-portrait>
+        <img
+          class="word-portrait__source"
+          src="/images/portrait-nbw.webp"
+          width="1125"
+          height="2000"
+          alt="倪博文戴眼镜的个人照片"
+          decoding="async"
+        />
+        <canvas class="word-portrait__canvas" aria-hidden="true"></canvas>
+        <figcaption>A portrait made of words / NBW</figcaption>
+      </figure>
+    </aside>
 
-  <section class="section section--compact">
-    <div class="container about-intro">
-      <div class="prose">
-        <h2>个人简介</h2>
-        <p>{site.description}</p>
-        <p>{resume.summary}</p>
-        <div class="notice"><strong>{site.sampleNotice}</strong><span>修改 src/config/site.ts 与 resume.ts 后重新部署即可。</span></div>
-      </div>
-      <section class="about-intro__card card" aria-labelledby="about-summary-title">
-        <h2 id="about-summary-title" class="sr-only">快速信息</h2>
-        <dl>
-          <div><dt>当前身份</dt><dd>{site.role}</dd></div>
-          <div><dt>年龄</dt><dd>{site.age} 岁</dd></div>
-          <div><dt>所在城市</dt><dd>{site.location}</dd></div>
-          <div><dt>求职状态</dt><dd>{site.availability}</dd></div>
-          <div><dt>主要方向</dt><dd>Web 全栈 / AI 应用 / 数据可视化</dd></div>
-        </dl>
+    <article class="readme-content">
+      <header class="readme-title">
+        <h1>README<span>.md</span></h1>
+        <p>{site.role}</p>
+      </header>
+
+      <section class="readme-section" id="about" aria-labelledby="about-me-title">
+        <h2 id="about-me-title"><span aria-hidden="true">#</span> About Me</h2>
+        <div class="readme-intro">
+          <p>你好，我是{resume.name}。{site.longBio}</p>
+          <p>{resume.summary}</p>
+          <p class="readme-intro__quiet">在技术世界里，我相信好的代码不只是功能的实现，也是思考与表达的方式。</p>
+        </div>
       </section>
-    </div>
-  </section>
 
-  <section class="section section--soft" aria-labelledby="education-title">
-    <div class="container">
-      <SectionHeading eyebrow="EDUCATION" title="教育背景" />
-      <div class="timeline" id="education-title">
-        {resume.education.map((item) => (
-          <article class="timeline-item card">
-            <span class="timeline-period">{item.period}</span>
-            <div>
-              <h3>{item.school}</h3>
-              <p>{item.degree}</p>
-              <ul>{item.details.map((detail) => <li>{detail}</li>)}</ul>
+      <section class="readme-section" id="skills" aria-labelledby="skills-title">
+        <h2 id="skills-title"><span aria-hidden="true">##</span> Skills</h2>
+        <ul class="readme-tags">
+          {skills.map((skill) => <li>{skill}</li>)}
+        </ul>
+      </section>
+
+      <section class="readme-section" id="projects" aria-labelledby="projects-title">
+        <h2 id="projects-title"><span aria-hidden="true">##</span> Projects</h2>
+        <div class="readme-projects">
+          {resume.selectedProjects.map((project) => (
+            <a class="readme-project" href="/projects/">
+              <span class="readme-project__mark" aria-hidden="true">◉</span>
+              <span>
+                <strong>{project.name}</strong>
+                <span class="readme-project__description">{project.description}</span>
+                <small>{project.tech}</small>
+              </span>
+            </a>
+          ))}
+        </div>
+      </section>
+
+      <section class="readme-section" id="learning" aria-labelledby="learning-title">
+        <h2 id="learning-title"><span aria-hidden="true">##</span> Learning</h2>
+        <p class="readme-learning">
+          {learning.map((item) => <span>{item}</span>)}
+        </p>
+      </section>
+
+      <footer class="readme-footer" id="contact">
+        <div class="readme-actions" id="resume">
+          <a
+            class="readme-action"
+            href={site.github}
+            target="_blank"
+            rel="noreferrer"
+            aria-label="打开倪博文的 GitHub 主页"
+            title="GitHub"
+          >
+            <svg class="readme-action__github" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 .9a11.1 11.1 0 0 0-3.51 21.63c.56.1.76-.24.76-.54v-2.08c-3.1.67-3.76-1.32-3.76-1.32-.5-1.28-1.23-1.62-1.23-1.62-1.01-.69.08-.68.08-.68 1.12.08 1.71 1.15 1.71 1.15.99 1.7 2.6 1.21 3.23.93.1-.72.39-1.21.7-1.49-2.47-.28-5.07-1.24-5.07-5.5 0-1.22.44-2.22 1.15-3-.12-.28-.5-1.42.11-2.96 0 0 .94-.3 3.05 1.15a10.6 10.6 0 0 1 5.55 0c2.12-1.45 3.05-1.15 3.05-1.15.61 1.54.23 2.68.11 2.96.72.78 1.15 1.78 1.15 3.01 0 4.27-2.6 5.21-5.08 5.49.4.35.75 1.02.75 2.06v3.05c0 .3.2.65.77.54A11.1 11.1 0 0 0 12 .9Z" />
+            </svg>
+          </a>
+
+          <a
+            class="readme-action"
+            href="/resume/"
+            data-resume-open
+            aria-label="预览简历"
+            title="预览简历"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" />
+              <path d="M14 2v6h6M8 13h8M8 17h5" />
+            </svg>
+          </a>
+
+          <details class="email-picker">
+            <summary class="readme-action" aria-label="选择邮箱" title="邮箱">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <rect x="3" y="5" width="18" height="14" rx="2" />
+                <path d="m3 7 9 6 9-6" />
+              </svg>
+            </summary>
+            <div class="email-picker__menu">
+              <a href={`mailto:${resume.contact.email}`}>
+                <span>谷歌邮箱</span>
+                <small>{resume.contact.email}</small>
+              </a>
+              <a href={`mailto:${resume.contact.emailAlt}`}>
+                <span>163 邮箱</span>
+                <small>{resume.contact.emailAlt}</small>
+              </a>
             </div>
-          </article>
-        ))}
+          </details>
+
+          <a
+            class="readme-action"
+            href="/resume.pdf"
+            download="倪博文-简历.pdf"
+            aria-label="下载简历 PDF"
+            title="下载简历 PDF"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m10 13.5 2 2 2-2M12 6v9M7 10H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-2" />
+            </svg>
+          </a>
+        </div>
+        <span class="readme-footer__divider" aria-hidden="true"></span>
+        <p>Keep Learning&nbsp; · &nbsp;Keep Building</p>
+      </footer>
+    </article>
+  </div>
+
+  <dialog class="resume-dialog" id="resume-preview" aria-labelledby="resume-preview-title">
+    <div class="resume-dialog__shell">
+      <form method="dialog">
+        <button class="resume-dialog__close" aria-label="关闭简历预览">×</button>
+      </form>
+      <header class="resume-dialog__header">
+        <span>RESUME · {resume.contact.location}</span>
+        <h2 id="resume-preview-title">{resume.name}</h2>
+        <p>{resume.headline}</p>
+        <small>{resume.contact.email} · {resume.contact.website}</small>
+      </header>
+      <div class="resume-dialog__body">
+        <section>
+          <h3>个人概述</h3>
+          <p>{resume.summary}</p>
+        </section>
+        <section>
+          <h3>教育背景</h3>
+          <div>
+            {resume.education.map((item) => (
+              <div class="resume-dialog__entry">
+                <strong>{item.school} · {item.degree}</strong>
+                <span>{item.period}</span>
+                <p>{item.details.join('；')}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+        <section>
+          <h3>经历</h3>
+          <div>
+            {resume.experience.map((item) => (
+              <div class="resume-dialog__entry">
+                <strong>{item.organization} · {item.role}</strong>
+                <span>{item.period}</span>
+                <ul>{item.details.map((detail) => <li>{detail}</li>)}</ul>
+              </div>
+            ))}
+          </div>
+        </section>
+        <section>
+          <h3>技能</h3>
+          <div>
+            {resume.skillGroups.map((group) => (
+              <p><strong>{group.label}</strong>　{group.items.join(' · ')}</p>
+            ))}
+          </div>
+        </section>
       </div>
+      <footer class="resume-dialog__footer">
+        <span>完整 PDF 版由页面简历数据同步生成</span>
+        <a href="/resume.pdf" download="倪博文-简历.pdf">下载 PDF</a>
+      </footer>
     </div>
-  </section>
-
-  <section class="section" aria-labelledby="skills-title">
-    <div class="container">
-      <SectionHeading eyebrow="SKILLS" title="技能不是名词列表，而是完成项目的工具箱。" />
-      <div class="tech-grid" id="skills-title">
-        {techGroups.map((group, index) => (
-          <article class="tech-group card">
-            <span class="tech-group__number">0{index + 1} / SKILLS</span>
-            <h3>{group.label}</h3>
-            <ul>{group.items.map((item) => <li class="pill">{item}</li>)}</ul>
-          </article>
-        ))}
-      </div>
-    </div>
-  </section>
-
-  <section class="section section--soft" aria-labelledby="experience-title">
-    <div class="container">
-      <SectionHeading eyebrow="EXPERIENCE" title="经历与职责" />
-      <div class="timeline" id="experience-title">
-        {resume.experience.map((item) => (
-          <article class="timeline-item card">
-            <span class="timeline-period">{item.period}</span>
-            <div>
-              <h3>{item.organization}</h3>
-              <p>{item.role}</p>
-              <ul>{item.details.map((detail) => <li>{detail}</li>)}</ul>
-            </div>
-          </article>
-        ))}
-      </div>
-    </div>
-  </section>
-
-  <section class="section" aria-labelledby="awards-title">
-    <div class="container narrow">
-      <SectionHeading eyebrow="AWARDS" title="奖项与认可" />
-      <ul class="check-list" id="awards-title">{resume.awards.map((award) => <li>{award}</li>)}</ul>
-    </div>
-  </section>
-
-  <section class="section section--soft" aria-labelledby="contact-title">
-    <div class="container">
-      <SectionHeading eyebrow="CONTACT" title="联系方式" description="邮件最适合完整介绍项目；GitHub 可以看到持续更新；简历可直接下载 PDF。" />
-      <ContactGrid />
-    </div>
-  </section>
+  </dialog>
 </BaseLayout>
 
+<script>
+  const portrait = document.querySelector<HTMLElement>('[data-word-portrait]');
+  const canvas = portrait?.querySelector<HTMLCanvasElement>('canvas');
+  const source = portrait?.querySelector<HTMLImageElement>('img');
+  const context = canvas?.getContext('2d');
+
+  const drawWordPortrait = () => {
+    if (!portrait || !canvas || !source || !context || !source.naturalWidth) return;
+
+    const box = canvas.getBoundingClientRect();
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const width = Math.round(Math.max(320, box.width) * dpr);
+    const height = Math.round(Math.max(480, box.height) * dpr);
+    canvas.width = width;
+    canvas.height = height;
+
+    // 按画布比例裁切照片，稍微偏上取景以保留头发、眼镜和面部。
+    const targetRatio = width / height;
+    const sourceRatio = source.naturalWidth / source.naturalHeight;
+    let sourceX = 0;
+    let sourceY = 0;
+    let sourceWidth = source.naturalWidth;
+    let sourceHeight = source.naturalHeight;
+
+    if (sourceRatio < targetRatio) {
+      sourceHeight = source.naturalWidth / targetRatio;
+      sourceY = Math.max(0, (source.naturalHeight - sourceHeight) * 0.24);
+    } else {
+      sourceWidth = source.naturalHeight * targetRatio;
+      sourceX = (source.naturalWidth - sourceWidth) / 2;
+    }
+
+    const sampler = document.createElement('canvas');
+    const samplerContext = sampler.getContext('2d', { willReadFrequently: true });
+    if (!samplerContext) return;
+
+    const sampleWidth = 360;
+    const sampleHeight = Math.round(sampleWidth / targetRatio);
+    sampler.width = sampleWidth;
+    sampler.height = sampleHeight;
+    samplerContext.fillStyle = '#fff';
+    samplerContext.fillRect(0, 0, sampleWidth, sampleHeight);
+    samplerContext.drawImage(
+      source,
+      sourceX,
+      sourceY,
+      sourceWidth,
+      sourceHeight,
+      0,
+      0,
+      sampleWidth,
+      sampleHeight
+    );
+
+    const image = samplerContext.getImageData(0, 0, sampleWidth, sampleHeight);
+    const gray = new Float32Array(sampleWidth * sampleHeight);
+    const sky = new Uint8Array(sampleWidth * sampleHeight);
+    const skin = new Uint8Array(sampleWidth * sampleHeight);
+    for (let index = 0; index < gray.length; index += 1) {
+      const offset = index * 4;
+      const red = image.data[offset];
+      const green = image.data[offset + 1];
+      const blue = image.data[offset + 2];
+      gray[index] = (red * 0.299 + green * 0.587 + blue * 0.114) / 255;
+      sky[index] = blue > 185 && blue > red * 1.08 ? 1 : 0;
+      skin[index] = red > blue * 1.06 && red > green * 1.01 && red > 70 ? 1 : 0;
+    }
+
+    const portraitWords = [
+      'Developer', 'Code', 'Think', 'Create', 'Build', 'Learn',
+      'Python', 'Design', 'Explore', 'NBW', 'Machine', 'Learning',
+      'Curiosity', 'Problem', 'Solver', 'Keep', 'Building', 'Ideas',
+      'Open Source', 'Deep Learning', 'Web', 'AI', 'RAG'
+    ];
+    const detailWords = ['Code', 'Think', 'Build', 'Learn', 'Create', 'Web', 'AI', 'RAG', 'Ideas', 'NBW'];
+
+    context.fillStyle = '#fff';
+    context.fillRect(0, 0, width, height);
+    context.textBaseline = 'middle';
+    context.textAlign = 'center';
+
+    const cols = box.width < 760 ? 48 : 80;
+    const cellWidth = width / cols;
+    const cellHeight = cellWidth * 0.62;
+    const rows = Math.ceil(height / cellHeight);
+    const occupied = new Uint8Array(cols * rows);
+
+    const measureCell = (col: number, row: number, spanX: number, spanY: number) => {
+      const sampleX0 = Math.floor(((col * cellWidth) / width) * sampleWidth);
+      const sampleX1 = Math.max(
+        sampleX0 + 1,
+        Math.floor((((col + spanX) * cellWidth) / width) * sampleWidth)
+      );
+      const sampleY0 = Math.floor(((row * cellHeight) / height) * sampleHeight);
+      const sampleY1 = Math.max(
+        sampleY0 + 1,
+        Math.floor((((row + spanY) * cellHeight) / height) * sampleHeight)
+      );
+
+      let total = 0;
+      let count = 0;
+      let darkest = 1;
+      let brightest = 0;
+      let skyCount = 0;
+      let skinCount = 0;
+
+      for (let y = Math.max(0, sampleY0); y < Math.min(sampleHeight, sampleY1); y += 1) {
+        for (let x = Math.max(0, sampleX0); x < Math.min(sampleWidth, sampleX1); x += 1) {
+          const index = y * sampleWidth + x;
+          const value = gray[index];
+          total += value;
+          count += 1;
+          darkest = Math.min(darkest, value);
+          brightest = Math.max(brightest, value);
+          skyCount += sky[index];
+          skinCount += skin[index];
+        }
+      }
+
+      const luminance = total / Math.max(1, count);
+      const contrast = brightest - darkest;
+      const skinRatio = skinCount / Math.max(1, count);
+      const darkness = Math.max(0, Math.min(1, (0.84 - luminance) / 0.66));
+      const shaped = Math.pow(darkness, skinRatio > 0.3 ? 1.3 : 1.28);
+      const edgeBoost = Math.min(0.5, Math.max(0, (contrast - 0.07) * 0.9));
+
+      return {
+        luminance,
+        contrast,
+        skinRatio,
+        skyRatio: skyCount / Math.max(1, count),
+        strength: Math.min(1, shaped + edgeBoost)
+      };
+    };
+
+    const canPlace = (col: number, row: number, spanX: number, spanY: number) => {
+      if (col + spanX > cols || row + spanY > rows) return false;
+      for (let y = row; y < row + spanY; y += 1) {
+        for (let x = col; x < col + spanX; x += 1) {
+          if (occupied[y * cols + x]) return false;
+        }
+      }
+      return true;
+    };
+
+    for (let row = 0; row < rows; row += 1) {
+      for (let col = 0; col < cols; col += 1) {
+        if (occupied[row * cols + col]) continue;
+
+        let spanX = 1;
+        let spanY = 1;
+        let metrics = measureCell(col, row, 1, 1);
+        if (metrics.skyRatio > 0.58) continue;
+
+        // 细网格保留五官；只有非肤色的暗部大片区域才逐级合并为大字块。
+        if (
+          metrics.skinRatio < 0.22 &&
+          metrics.luminance < 0.32 &&
+          metrics.strength > 0.66 &&
+          canPlace(col, row, 6, 6)
+        ) {
+          const candidate = measureCell(col, row, 6, 6);
+          if (
+            candidate.luminance < 0.3 &&
+            candidate.skyRatio < 0.1 &&
+            candidate.skinRatio < 0.08
+          ) {
+            spanX = 6;
+            spanY = 6;
+            metrics = candidate;
+          }
+        }
+
+        if (
+          spanX === 1 &&
+          metrics.skinRatio < 0.2 &&
+          metrics.luminance < 0.4 &&
+          metrics.strength > 0.52 &&
+          canPlace(col, row, 4, 4)
+        ) {
+          const candidate = measureCell(col, row, 4, 4);
+          if (
+            candidate.luminance < 0.38 &&
+            candidate.skyRatio < 0.14 &&
+            candidate.skinRatio < 0.1
+          ) {
+            spanX = 4;
+            spanY = 4;
+            metrics = candidate;
+          }
+        }
+
+        if (
+          spanX === 1 &&
+          metrics.skinRatio < 0.24 &&
+          metrics.luminance < 0.5 &&
+          metrics.strength > 0.38 &&
+          canPlace(col, row, 2, 2)
+        ) {
+          const candidate = measureCell(col, row, 2, 2);
+          if (
+            candidate.luminance < 0.46 &&
+            candidate.skyRatio < 0.24 &&
+            candidate.skinRatio < 0.16
+          ) {
+            spanX = 2;
+            spanY = 2;
+            metrics = candidate;
+          }
+        }
+
+        if ((metrics.luminance > 0.83 && metrics.contrast < 0.14) || metrics.strength < 0.025) {
+          continue;
+        }
+
+        const words = spanX > 1 ? portraitWords : detailWords;
+        const word = words[(row * 7 + col * 5 + spanX) % words.length];
+        const blockWidth = cellWidth * spanX;
+        const blockHeight = cellHeight * spanY;
+        const fontSize = Math.min(
+          blockWidth * (spanX > 1 ? 0.72 : 0.82),
+          blockHeight * (spanX > 1 ? 0.82 : 0.8),
+          5 * dpr +
+            Math.pow(metrics.strength, 0.86) * blockHeight * (spanX > 1 ? 0.65 : 0.42)
+        );
+        const fontWeight = metrics.strength > 0.58 ? 700 : metrics.strength > 0.24 ? 500 : 400;
+        const alpha =
+          metrics.strength > 0.68 ? 0.95 : metrics.strength > 0.34 ? 0.78 : 0.58;
+        const centerX = col * cellWidth + blockWidth / 2;
+        const centerY = row * cellHeight + blockHeight * 0.54;
+
+        context.font = `${fontWeight} ${fontSize.toFixed(2)}px "Cascadia Code", "Segoe UI", monospace`;
+        context.fillStyle = `rgba(10,10,10,${alpha.toFixed(3)})`;
+        context.fillText(
+          word,
+          centerX,
+          centerY,
+          blockWidth * (spanX > 1 ? 0.92 : 0.84)
+        );
+
+        for (let y = row; y < row + spanY; y += 1) {
+          for (let x = col; x < col + spanX; x += 1) {
+            occupied[y * cols + x] = 1;
+          }
+        }
+      }
+    }
+
+    portrait.classList.add('is-ready');
+  };
+
+  if (source?.complete && source.naturalWidth) {
+    requestAnimationFrame(drawWordPortrait);
+  } else {
+    source?.addEventListener('load', () => requestAnimationFrame(drawWordPortrait), { once: true });
+  }
+
+  let resizeTimer = 0;
+  window.addEventListener('resize', () => {
+    window.clearTimeout(resizeTimer);
+    resizeTimer = window.setTimeout(drawWordPortrait, 140);
+  });
+
+  const resumeTrigger = document.querySelector<HTMLAnchorElement>('[data-resume-open]');
+  const resumeDialog = document.querySelector<HTMLDialogElement>('#resume-preview');
+
+  resumeTrigger?.addEventListener('click', (event) => {
+    if (!resumeDialog || typeof resumeDialog.showModal !== 'function') return;
+    event.preventDefault();
+    resumeDialog.showModal();
+  });
+
+  resumeDialog?.addEventListener('click', (event) => {
+    if (event.target === resumeDialog) resumeDialog.close();
+  });
+</script>
+
+<style>
+  :global(body) {
+    background: #fff;
+  }
+
+  :global(body::before) {
+    display: none;
+  }
+
+  :global(.site-header) {
+    padding-top: 0;
+  }
+
+  :global(.site-header .container) {
+    width: min(calc(100% - 40px), 1480px);
+  }
+
+  :global(.site-header__bar) {
+    min-height: 72px;
+    padding: 0 0.2rem;
+    background: rgba(255, 255, 255, 0.94);
+    border: 0;
+    border-bottom: 1px solid #d8d8d8;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  :global(.site-header .nav a) {
+    font-family: var(--font-mono);
+    font-weight: 500;
+  }
+
+  :global(.site-header .header-cta) {
+    border-radius: 7px;
+  }
+
+  .about-readme {
+    display: grid;
+    grid-template-columns: minmax(360px, 0.94fr) minmax(440px, 1fr);
+    align-items: start;
+    gap: clamp(42px, 6vw, 96px);
+    width: min(calc(100% - 40px), 1480px);
+    margin-inline: auto;
+    background: #fff;
+    color: #111;
+  }
+
+  .portrait-column {
+    position: sticky;
+    top: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: calc(100vh - 72px);
+    min-height: 650px;
+    overflow: hidden;
+  }
+
+  .word-portrait {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+  }
+
+  .word-portrait__source,
+  .word-portrait__canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: grayscale(1) contrast(1.25);
+    transition: opacity 180ms ease;
+  }
+
+  .word-portrait__canvas {
+    filter: none;
+    opacity: 0;
+  }
+
+  .word-portrait.is-ready .word-portrait__source {
+    opacity: 0;
+  }
+
+  .word-portrait.is-ready .word-portrait__canvas {
+    opacity: 1;
+  }
+
+  .word-portrait figcaption {
+    position: absolute;
+    bottom: 24px;
+    left: 4%;
+    color: #666;
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .readme-content {
+    min-width: 0;
+    padding: clamp(48px, 6.5vw, 96px) 0 48px;
+  }
+
+  .readme-title {
+    padding-bottom: 22px;
+    margin-bottom: 46px;
+    border-bottom: 1px solid #929292;
+  }
+
+  .readme-title h1 {
+    margin: 0;
+    color: #0b0b0b;
+    font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    font-size: clamp(3rem, 5.5vw, 4.8rem);
+    font-weight: 800;
+    line-height: 0.98;
+    letter-spacing: -0.065em;
+  }
+
+  .readme-title h1 span {
+    font-family: var(--font-mono);
+    font-weight: 400;
+    letter-spacing: -0.09em;
+  }
+
+  .readme-title p {
+    margin: 16px 0 0;
+    color: #666;
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+  }
+
+  .readme-section {
+    margin-bottom: 44px;
+    scroll-margin-top: 88px;
+  }
+
+  .readme-section h2 {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 0 0 17px;
+    font-family: var(--font-mono);
+    font-size: clamp(1.3rem, 2vw, 1.7rem);
+    font-weight: 500;
+    letter-spacing: -0.045em;
+  }
+
+  .readme-section h2::before {
+    width: 3px;
+    height: 27px;
+    flex: 0 0 auto;
+    content: "";
+    background: #111;
+  }
+
+  .readme-section h2 span {
+    color: #777;
+  }
+
+  .readme-intro {
+    color: #252525;
+    font-size: 1rem;
+    line-height: 2;
+  }
+
+  .readme-intro p {
+    margin: 0 0 14px;
+    color: inherit;
+  }
+
+  .readme-intro__quiet {
+    color: #666 !important;
+  }
+
+  .readme-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px 10px;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+
+  .readme-tags li {
+    padding: 6px 12px;
+    background: #fff;
+    border: 1px solid #bcbcbc;
+    border-radius: 7px;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    line-height: 1.4;
+    transition: color 180ms ease, background-color 180ms ease, border-color 180ms ease;
+  }
+
+  .readme-tags li:hover {
+    color: #fff;
+    background: #111;
+    border-color: #111;
+  }
+
+  .readme-projects {
+    display: grid;
+    gap: 19px;
+  }
+
+  .readme-project {
+    display: grid;
+    grid-template-columns: 22px minmax(0, 1fr);
+    gap: 13px;
+    align-items: start;
+    color: inherit;
+  }
+
+  .readme-project__mark {
+    font-family: var(--font-mono);
+    font-size: 1.1rem;
+    line-height: 1.35;
+  }
+
+  .readme-project strong {
+    font-family: var(--font-mono);
+    font-size: 0.88rem;
+    font-weight: 500;
+  }
+
+  .readme-project__description {
+    margin-left: 8px;
+    color: #555;
+    font-size: 0.88rem;
+    line-height: 1.8;
+  }
+
+  .readme-project small {
+    display: block;
+    margin-top: 6px;
+    color: #666;
+    font-family: var(--font-mono);
+    font-size: 0.69rem;
+  }
+
+  .readme-project:hover strong {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+
+  .readme-learning {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 0.38rem;
+    margin: 0;
+    color: #555;
+    font-family: var(--font-mono);
+    font-size: 0.81rem;
+    line-height: 2;
+  }
+
+  .readme-learning span {
+    white-space: nowrap;
+  }
+
+  .readme-learning span:not(:last-child)::after {
+    color: #999;
+    content: " ·";
+  }
+
+  .readme-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 17px;
+    padding-top: 23px;
+    margin-top: 48px;
+    border-top: 1px solid #aaa;
+    scroll-margin-top: 88px;
+  }
+
+  .readme-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .readme-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    color: #111;
+    background: #fff;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    list-style: none;
+    transition: color 180ms ease, background-color 180ms ease, border-color 180ms ease;
+  }
+
+  .readme-action:hover,
+  .email-picker[open] > .readme-action {
+    color: #fff;
+    background: #111;
+    border-color: #111;
+  }
+
+  .readme-action svg {
+    width: 21px;
+    height: 21px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .readme-action__github {
+    fill: currentColor !important;
+    stroke: none !important;
+  }
+
+  .email-picker {
+    position: relative;
+  }
+
+  .email-picker summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .email-picker__menu {
+    position: absolute;
+    bottom: calc(100% + 12px);
+    left: 0;
+    z-index: 10;
+    display: grid;
+    width: 250px;
+    padding: 7px;
+    background: #fff;
+    border: 1px solid #bdbdbd;
+    border-radius: 9px;
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.14);
+  }
+
+  .email-picker__menu a {
+    display: grid;
+    gap: 2px;
+    padding: 10px;
+    border-radius: 6px;
+  }
+
+  .email-picker__menu a:hover {
+    background: #f3f3f3;
+  }
+
+  .email-picker__menu span {
+    font-size: 0.84rem;
+    font-weight: 700;
+  }
+
+  .email-picker__menu small {
+    overflow-wrap: anywhere;
+    color: #777;
+    font-family: var(--font-mono);
+    font-size: 0.67rem;
+  }
+
+  .readme-footer__divider {
+    height: 22px;
+    margin: 0 4px;
+    border-left: 1px solid #777;
+  }
+
+  .readme-footer p {
+    margin: 0;
+    color: #333;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    letter-spacing: 0.02em;
+  }
+
+  .resume-dialog {
+    width: min(720px, calc(100vw - 32px));
+    max-height: min(860px, calc(100vh - 48px));
+    padding: 0;
+    overflow: hidden;
+    color: #111;
+    background: #fff;
+    border: 1px solid #bdbdbd;
+    border-radius: 10px;
+    box-shadow: 0 28px 80px rgba(0, 0, 0, 0.24);
+  }
+
+  .resume-dialog::backdrop {
+    background: rgba(0, 0, 0, 0.56);
+    backdrop-filter: blur(3px);
+  }
+
+  .resume-dialog__shell {
+    display: flex;
+    max-height: inherit;
+    flex-direction: column;
+  }
+
+  .resume-dialog form {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 2;
+    margin: 0;
+  }
+
+  .resume-dialog__close {
+    width: 36px;
+    height: 36px;
+    color: #111;
+    background: #fff;
+    border: 1px solid #cacaca;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.35rem;
+    line-height: 1;
+  }
+
+  .resume-dialog__close:hover {
+    color: #fff;
+    background: #111;
+    border-color: #111;
+  }
+
+  .resume-dialog__header {
+    padding: 32px 40px 24px;
+    border-bottom: 2px solid #111;
+  }
+
+  .resume-dialog__header > span {
+    color: #777;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+  }
+
+  .resume-dialog__header h2 {
+    margin: 8px 0 4px;
+    font-size: clamp(2rem, 6vw, 3rem);
+  }
+
+  .resume-dialog__header p {
+    margin: 0 0 6px;
+    color: #333;
+    font-weight: 650;
+  }
+
+  .resume-dialog__header small {
+    color: #777;
+    font-size: 0.72rem;
+  }
+
+  .resume-dialog__body {
+    display: grid;
+    gap: 24px;
+    padding: 26px 40px;
+    overflow-y: auto;
+  }
+
+  .resume-dialog__body section {
+    display: grid;
+    grid-template-columns: 92px minmax(0, 1fr);
+    gap: 16px;
+  }
+
+  .resume-dialog__body h3 {
+    margin: 0;
+    color: #666;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 500;
+  }
+
+  .resume-dialog__body p,
+  .resume-dialog__body ul {
+    margin: 0;
+    color: #3c3c3c;
+    font-size: 0.84rem;
+    line-height: 1.8;
+  }
+
+  .resume-dialog__body ul {
+    padding-left: 1rem;
+  }
+
+  .resume-dialog__entry + .resume-dialog__entry {
+    margin-top: 12px;
+  }
+
+  .resume-dialog__entry strong {
+    display: block;
+    font-size: 0.88rem;
+  }
+
+  .resume-dialog__entry > span {
+    display: block;
+    margin: 2px 0 4px;
+    color: #888;
+    font-family: var(--font-mono);
+    font-size: 0.67rem;
+  }
+
+  .resume-dialog__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 18px 40px;
+    border-top: 1px solid #c8c8c8;
+  }
+
+  .resume-dialog__footer span {
+    color: #777;
+    font-size: 0.72rem;
+  }
+
+  .resume-dialog__footer a {
+    padding: 9px 14px;
+    color: #fff;
+    background: #111;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+
+  @media (max-width: 960px) {
+    .about-readme {
+      grid-template-columns: minmax(280px, 0.82fr) minmax(360px, 1fr);
+      gap: 30px;
+    }
+
+    .readme-content {
+      padding-top: 58px;
+    }
+
+    .readme-project__description {
+      display: block;
+      margin: 5px 0 0;
+    }
+  }
+
+  @media (max-width: 760px) {
+    :global(.site-header .container) {
+      width: min(calc(100% - 28px), 1480px);
+    }
+
+    .about-readme {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      width: min(calc(100% - 32px), 680px);
+    }
+
+    .portrait-column {
+      position: relative;
+      top: auto;
+      width: 100%;
+      height: min(112vw, 520px);
+      min-height: 0;
+    }
+
+    .word-portrait figcaption {
+      bottom: 8px;
+      font-size: 0.55rem;
+    }
+
+    .readme-content {
+      width: 100%;
+      padding: 26px 0 45px;
+    }
+
+    .readme-title {
+      margin-bottom: 38px;
+      padding-bottom: 17px;
+    }
+
+    .readme-title h1 {
+      font-size: clamp(2.8rem, 13vw, 4rem);
+    }
+
+    .readme-section {
+      margin-bottom: 35px;
+    }
+
+    .readme-project__description {
+      font-size: 0.84rem;
+    }
+
+    .readme-footer {
+      margin-top: 35px;
+      gap: 14px;
+    }
+
+    .readme-footer__divider {
+      display: none;
+    }
+
+    .readme-footer p {
+      width: 100%;
+    }
+
+    .resume-dialog {
+      max-height: calc(100vh - 24px);
+    }
+
+    .resume-dialog__header,
+    .resume-dialog__body,
+    .resume-dialog__footer {
+      padding-inline: 22px;
+    }
+
+    .resume-dialog__body section {
+      grid-template-columns: 1fr;
+      gap: 6px;
+    }
+
+    .resume-dialog__footer {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .word-portrait__source,
+    .word-portrait__canvas,
+    .readme-tags li,
+    .readme-action {
+      transition: none;
+    }
+  }
+</style>

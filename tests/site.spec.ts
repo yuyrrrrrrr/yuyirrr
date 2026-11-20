@@ -5,9 +5,42 @@ test('首页首屏呈现 made by yuyirrr 与作品胶卷', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Made by yuyirrr');
   await expect(page.locator('[data-gravity-canvas]')).toBeVisible();
-  await expect(page.getByRole('link', { name: /联系我/ }).first()).toBeVisible();
+  await expect(page.getByRole('button', { name: /联系我/ }).first()).toBeVisible();
   await expect(page.getByRole('link', { name: /查看全部项目/ })).toBeVisible();
   await expect(page.locator('[data-film-frame]')).toHaveCount(5);
+});
+
+test('首页联系入口打开可复制的联系方式弹窗', async ({ page, context }) => {
+  await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+  await page.goto('/');
+
+  await expect(page.getByRole('heading', { name: '技术栈', exact: true })).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: '联系', exact: true })).toBeVisible();
+  await page.locator('.site-footer').getByRole('button', { name: 'Gmail', exact: true }).click();
+
+  const dialog = page.getByRole('dialog', { name: '复制联系方式' });
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByText('bowenni940@gmail.com')).toBeVisible();
+  await expect(dialog.getByText('https://github.com/yuyrrrrrrr')).toBeVisible();
+  await expect(dialog.getByRole('button', { name: /Gmail/ })).toBeFocused();
+
+  await dialog.getByRole('button', { name: /Gmail/ }).click();
+  await expect(dialog.getByRole('status')).toHaveText('已复制 Gmail');
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe('bowenni940@gmail.com');
+
+  await page.keyboard.press('Escape');
+  await expect(dialog).toBeHidden();
+
+  await page.getByRole('button', { name: /发邮件聊聊/ }).click();
+  await expect(dialog).toBeVisible();
+  await page.keyboard.press('Escape');
+
+  await page.locator('.site-footer').getByRole('button', { name: 'GitHub ↗', exact: true }).click();
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByRole('button', { name: /GitHub/ })).toBeFocused();
+  await page.keyboard.press('Escape');
+
+  await expect(page.locator('.site-footer a[href^="mailto:"], .site-footer a[href*="github.com"]')).toHaveCount(0);
 });
 
 test('3D 胶卷的每个画面都能打开对应详情，关闭后保留位置', async ({ page }) => {
@@ -150,13 +183,44 @@ test('简历 PDF 与博客可访问，RSS 已移除', async ({ page, request }) 
   expect(rss.status()).toBe(404);
 });
 
+test('关于页汇总简历并提供预览、邮箱选择与 PDF 下载', async ({ page }) => {
+  await page.goto('/about/');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('README.md');
+  await expect(page.getByRole('heading', { name: 'About Me' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Projects' })).toBeVisible();
+  await expect(page.locator('[data-word-portrait]')).toHaveClass(/is-ready/);
+  await expect(page.getByLabel('打开倪博文的 GitHub 主页')).toHaveAttribute(
+    'href',
+    'https://github.com/yuyrrrrrrr'
+  );
+  await expect(page.getByLabel('下载简历 PDF')).toHaveAttribute('href', '/resume.pdf');
+  await expect(page.getByLabel('下载简历 PDF')).toHaveAttribute('download', '倪博文-简历.pdf');
+
+  await page.getByLabel('预览简历').click();
+  const dialog = page.getByRole('dialog', { name: '倪博文' });
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByRole('heading', { name: '教育背景' })).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(dialog).toBeHidden();
+
+  await page.locator('.email-picker summary').click();
+  await expect(page.getByRole('link', { name: /谷歌邮箱/ })).toHaveAttribute(
+    'href',
+    'mailto:bowenni940@gmail.com'
+  );
+  await expect(page.getByRole('link', { name: /163 邮箱/ })).toHaveAttribute(
+    'href',
+    'mailto:19144718828@163.com'
+  );
+});
+
 test('关键页面在移动端、平板和桌面视口无横向溢出', async ({ page }) => {
   const viewports = [
     { width: 360, height: 800 },
     { width: 768, height: 1024 },
     { width: 1440, height: 900 }
   ];
-  const paths = ['/', '/projects/', '/projects/campus-marketplace/', '/resume/', '/blog/why-static-portfolio/'];
+  const paths = ['/', '/projects/', '/projects/campus-marketplace/', '/resume/', '/about/', '/blog/why-static-portfolio/'];
 
   for (const viewport of viewports) {
     await page.setViewportSize(viewport);
